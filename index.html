@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dumbbell Coach</title>
+<title>George & Sophie's Workouts</title>
 <style>
   :root{
     --ink:#101418;
@@ -13,28 +13,45 @@
     --dim:#8b98a5;
     --volt:#ffd60a;
     --rest:#3ec6ff;
+    --sophie:#ff8fb1;
     --chest:#ff6b5e; --back:#5e9bff; --arms:#c98bff; --abs:#ffd60a; --legs:#5effa8; --shoulders:#ff9d5e;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   body{
     margin:0; background:var(--ink); color:var(--chalk);
-    font-family:-apple-system,'Segoe UI',Roboto,'Archivo',sans-serif;
+    font-family:-apple-system,'Segoe UI',Roboto,sans-serif;
     min-height:100vh;
   }
   .display{font-weight:900; text-transform:uppercase; letter-spacing:.03em;}
   #app{max-width:520px; margin:0 auto; padding:20px 16px 90px;}
 
   .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
-  .brand{font-size:18px;}
-  .brand em{color:var(--volt); font-style:normal;}
+  .brand{font-size:16px;}
+  .brand em{color:var(--accent,#ffd60a); font-style:normal;}
   .backbtn{
     background:none; border:1px solid var(--line); color:var(--chalk);
     border-radius:8px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit;
   }
   .backbtn:active{background:var(--steel);}
 
+  .picker{min-height:80vh; display:flex; flex-direction:column; justify-content:center; text-align:center;}
+  .picker h1{font-size:30px; margin:0 0 6px; line-height:1.1;}
+  .picker p{color:var(--dim); font-size:15px; margin:0 0 30px;}
+  .profile-btn{
+    width:100%; padding:26px 20px; margin-bottom:14px; border-radius:18px; cursor:pointer;
+    border:1px solid var(--line); background:var(--steel); color:var(--chalk);
+    font-family:inherit; text-align:left; display:flex; align-items:center; gap:16px;
+  }
+  .profile-btn:active{transform:scale(.98);}
+  .profile-btn .avatar{
+    width:54px; height:54px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:22px; font-weight:900; color:#111; flex-shrink:0;
+  }
+  .profile-btn .pname{font-size:19px; font-weight:800;}
+  .profile-btn .pdesc{font-size:13px; color:var(--dim); margin-top:3px;}
+
   .week-hero{margin:6px 0 22px;}
-  .week-hero h1{font-size:30px; line-height:1.05; margin:0 0 6px;}
+  .week-hero h1{font-size:28px; line-height:1.05; margin:0 0 6px;}
   .week-hero p{color:var(--dim); font-size:14px; margin:0;}
   .daycard{
     width:100%; text-align:left; background:var(--steel); border:1px solid var(--line);
@@ -76,7 +93,7 @@
   .ex-row .sr{color:var(--dim); font-size:13px; font-variant-numeric:tabular-nums;}
   .startall{
     width:100%; padding:16px; margin-top:10px; border:none; border-radius:12px;
-    background:var(--volt); color:#111; font-size:15px; cursor:pointer;
+    background:var(--accent,#ffd60a); color:#111; font-size:15px; cursor:pointer;
     font-weight:900; text-transform:uppercase; letter-spacing:.04em; font-family:inherit;
   }
   .startall:active{transform:scale(.98);}
@@ -84,7 +101,7 @@
   .player{text-align:center;}
   .progress-track{display:flex; gap:4px; margin-bottom:18px;}
   .progress-track span{flex:1; height:4px; border-radius:2px; background:var(--line);}
-  .progress-track span.done{background:var(--volt);}
+  .progress-track span.done{background:var(--accent,#ffd60a);}
   .progress-track span.now{background:var(--chalk);}
   .ex-title{font-size:24px; margin:4px 0 2px;}
   .ex-sub{color:var(--dim); font-size:13px; margin-bottom:12px;}
@@ -112,18 +129,18 @@
   }
   .set-pips{display:flex; justify-content:center; gap:8px; margin-bottom:14px;}
   .pip{width:34px; height:34px; border-radius:50%; border:2px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:var(--dim); font-variant-numeric:tabular-nums;}
-  .pip.done{background:var(--volt); border-color:var(--volt); color:#111;}
+  .pip.done{background:var(--accent,#ffd60a); border-color:var(--accent,#ffd60a); color:#111;}
   .pip.now{border-color:var(--chalk); color:var(--chalk);}
 
   .timer-block{margin-bottom:14px;}
   .big-time{font-size:64px; font-variant-numeric:tabular-nums; line-height:1; font-weight:800;}
   .big-time.resting{color:var(--rest);}
-  .big-time.working{color:var(--volt);}
+  .big-time.working{color:var(--accent,#ffd60a);}
   .state-label{font-size:12px; text-transform:uppercase; letter-spacing:2px; color:var(--dim); margin-top:4px;}
 
   .mainbtn{
     width:100%; padding:18px; border:none; border-radius:14px; cursor:pointer;
-    background:var(--volt); color:#111; font-size:16px;
+    background:var(--accent,#ffd60a); color:#111; font-size:16px;
     font-weight:900; text-transform:uppercase; letter-spacing:.04em; font-family:inherit;
   }
   .mainbtn.resting{background:var(--rest);}
@@ -161,18 +178,31 @@
 <div id="app"></div>
 
 <script>
-/* ============ EXERCISE DATA ============ */
-/* Photos: public-domain images from free-exercise-db (github.com/yuhonas/free-exercise-db).
-   img: primary exercise ID. imgAlt: fallback IDs tried in order if the primary 404s. */
+/* ============ PHOTOS: public-domain images from free-exercise-db ============ */
 const IMG_BASE = "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/";
+function imgURL(id, pose){ return IMG_BASE + id + "/" + pose + ".jpg"; }
+window.imgFail = function(imgEl){
+  const alts = JSON.parse(imgEl.dataset.alts || "[]");
+  if(alts.length){
+    const next = alts.shift();
+    imgEl.dataset.alts = JSON.stringify(alts);
+    imgEl.dataset.id = next;
+    imgEl.src = imgURL(next, imgEl.dataset.pose || "0");
+  } else {
+    const panel = imgEl.closest(".photo-panel");
+    if(panel) panel.style.display = "none";
+    if(imgEl.classList.contains("thumb")) imgEl.style.display = "none";
+  }
+};
 
-const EXDB = {
+/* ============ GEORGE'S EXERCISES ============ */
+const EX_GEORGE = {
   "Bench press":        {m:["chest","triceps","shoulders"], sets:4, reps:"8-10",
     img:"Dumbbell_Bench_Press", imgAlt:["Alternating_Floor_Press"],
     how:"Lie flat, dumbbells at chest level. Press up until arms are straight, lower slowly for 2-3 seconds. Keep your feet planted and don't let the dumbbells drift toward your head."},
   "Incline press":      {m:["upperchest","shoulders","triceps"], sets:3, reps:"10-12",
     img:"Incline_Dumbbell_Press", imgAlt:["Dumbbell_Bench_Press"],
-    how:"Set an incline around 30-45° (prop the bench or use stairs). Press up and slightly back. Slow on the way down — that's where the growth is."},
+    how:"Set an incline around 30-45\u00b0 (prop the bench or use stairs). Press up and slightly back. Slow on the way down \u2014 that's where the growth is."},
   "Flyes":              {m:["chest"], sets:3, reps:"12-15",
     img:"Dumbbell_Flyes", imgAlt:["Around_The_Worlds"],
     how:"Slight bend in the elbows, lower the dumbbells wide until you feel a stretch across your chest, then squeeze them back together like you're hugging a barrel."},
@@ -199,39 +229,121 @@ const EXDB = {
     how:"Same as curls but palms facing each other the whole time. Hits the forearms and the thicker part of the arm."},
   "Weighted sit-ups":   {m:["abs"], sets:3, reps:"15",
     img:"3_4_Sit-Up", imgAlt:["Sit-Up"],
-    how:"Hold a dumbbell against your chest. Sit up under control, lower back down slowly — don't just flop back. (Photo shows the bodyweight version — just add the dumbbell to your chest.)"},
+    how:"Hold a dumbbell against your chest. Sit up under control, lower back down slowly \u2014 don't just flop back. (Photo shows the bodyweight version \u2014 just add the dumbbell.)"},
   "Russian twists":     {m:["obliques","abs"], sets:3, reps:"20",
     img:"Russian_Twist", imgAlt:["Seated_Barbell_Twist"],
-    how:"Sit back at 45°, hold the dumbbell with both hands, rotate side to side. Feet up = harder. One left-right = one rep."},
+    how:"Sit back at 45\u00b0, hold the dumbbell with both hands, rotate side to side. Feet up = harder. One left-right = one rep."},
   "Deadbug":            {m:["abs"], sets:3, reps:"12 / side",
     img:"Dead_Bug", imgAlt:["Bent-Knee_Hip_Raise"],
     how:"On your back, dumbbell held straight up over your chest. Extend opposite arm and leg away slowly, keep your lower back glued to the floor."},
   "Weighted plank":     {m:["abs","obliques"], sets:3, reps:"40 sec", timed:40,
     img:"Plank", imgAlt:["Body-Up"],
-    how:"Plank on forearms, dumbbell (or plate) on your lower back — or just bodyweight. Squeeze glutes and abs, don't let hips sag."},
+    how:"Plank on forearms, dumbbell (or plate) on your lower back \u2014 or just bodyweight. Squeeze glutes and abs, don't let hips sag."},
   "Renegade rows":      {m:["lats","midback","abs","biceps"], sets:3, reps:"10",
     img:"Alternating_Renegade_Row", imgAlt:["One-Arm_Dumbbell_Row"],
-    how:"Plank position with hands on the dumbbells. Row one up to your hip while bracing hard so your hips don't twist. Alternate sides. (Photo shows it with kettlebells — same movement with dumbbells.)"},
+    how:"Plank position with hands on the dumbbells. Row one up to your hip while bracing hard so your hips don't twist. Alternate sides. (Photo shows kettlebells \u2014 same movement.)"},
   "Squeeze press":      {m:["chest","triceps"], sets:3, reps:"12",
     img:"Dumbbell_Bench_Press", imgAlt:["Alternating_Floor_Press"],
-    how:"Press the two dumbbells together over your chest and keep squeezing them into each other as you press up and down. Constant chest tension. (Photo shows standard bench press — same position, just keep the dumbbells touching.)"},
+    how:"Press the two dumbbells together over your chest and keep squeezing them into each other as you press up and down. Constant chest tension. (Photo shows standard bench press \u2014 keep the dumbbells touching.)"},
   "Curl to press":      {m:["biceps","shoulders","triceps"], sets:3, reps:"10",
     img:"Arnold_Dumbbell_Press", imgAlt:["Standing_Dumbbell_Press"],
-    how:"Curl the dumbbells up, then rotate and press them overhead in one flow. Lower in reverse. Brutal for the whole arm and shoulders. (Photo shows the Arnold press — very similar rotation and press, yours just starts from a curl at your sides.)"},
+    how:"Curl the dumbbells up, then rotate and press them overhead in one flow. Lower in reverse. Brutal for the whole arm and shoulders. (Photo shows the Arnold press \u2014 very similar, yours starts from a curl.)"},
   "Deadlifts":          {m:["lowback","glutes","hams"], sets:3, reps:"10",
     img:"Romanian_Deadlift_With_Dumbbells", imgAlt:["Stiff-Legged_Dumbbell_Deadlift","Stiff_Legged_Dumbbell_Deadlift"],
-    how:"Dumbbells in front of your thighs. Hinge at the hips, push your bum back, flat back, lower to mid-shin, then drive hips forward to stand. Not a squat — a hinge."}
+    how:"Dumbbells in front of your thighs. Hinge at the hips, push your bum back, flat back, lower to mid-shin, then drive hips forward to stand. Not a squat \u2014 a hinge."}
 };
 
-const WEEK = [
-  {day:"Monday",    focus:"Chest & Triceps", color:"var(--chest)", ex:["Bench press","Incline press","Flyes","Overhead tricep extension","Tricep kickbacks"]},
-  {day:"Tuesday",   focus:"Back & Biceps",   color:"var(--back)",  ex:["Bent-over rows","Single-arm rows","Pullovers","Bicep curls","Hammer curls"]},
-  {day:"Wednesday", focus:"Abs & Core",      color:"var(--abs)",   ex:["Weighted sit-ups","Russian twists","Deadbug","Weighted plank"]},
-  {day:"Thursday",  focus:"Rest",            color:"var(--line)",  ex:[]},
-  {day:"Friday",    focus:"Full Body Burnout",color:"var(--arms)", ex:["Renegade rows","Squeeze press","Curl to press","Deadlifts"]},
-  {day:"Saturday",  focus:"Chest & Back · lighter", color:"var(--chest)", ex:["Bench press","Bent-over rows","Flyes","Pullovers"], lighter:true},
-  {day:"Sunday",    focus:"Rest",            color:"var(--line)",  ex:[]}
-];
+/* ============ SOPHIE'S EXERCISES \u2014 Pilates-based, no weights ============ */
+const EX_SOPHIE = {
+  "Glute bridge":       {m:["glutes","hams","abs"], sets:3, reps:"15",
+    img:"Butt_Lift_Bridge", imgAlt:["Barbell_Glute_Bridge","Bent-Knee_Hip_Raise"],
+    how:"Lie on your back, knees bent, feet flat and hip-width apart. Squeeze your glutes and lift your hips until your body makes a straight line from knees to shoulders. Pause 2 seconds at the top, lower slowly."},
+  "Donkey kicks":       {m:["glutes","hams"], sets:3, reps:"12 / side",
+    img:"Glute_Kickback", imgAlt:["Butt_Lift_Bridge"],
+    how:"On all fours, keep the knee bent at 90\u00b0 and lift one leg behind you, pushing the sole of your foot toward the ceiling. Squeeze the glute at the top, lower slowly without touching down. All reps one side, then switch."},
+  "Slow squats":        {m:["quads","glutes","hams"], sets:3, reps:"12",
+    img:"Bodyweight_Squat", imgAlt:["Bodyweight_Walking_Lunge"],
+    how:"Feet shoulder-width, arms out front for balance. Lower for a slow 3-count until thighs are parallel, pause 1 second at the bottom, rise for 2. The slow tempo is what does the toning \u2014 no rushing."},
+  "Side-lying leg lifts": {m:["glutes","quads"], sets:3, reps:"15 / side",
+    img:"Side_Leg_Raises", imgAlt:["Glute_Kickback"],
+    how:"Lie on your side, legs stacked and straight, head resting on your arm. Lift the top leg to about 45\u00b0 with the foot flexed, lower slowly without letting it rest. Classic Pilates outer-thigh work. All reps, then switch."},
+  "Inner thigh lifts":  {m:["quads"], sets:3, reps:"12 / side",
+    img:"Side_Leg_Raises", imgAlt:["Bodyweight_Squat"],
+    how:"Lie on your side, bend the top leg and place that foot flat in front of the bottom knee. Lift the bottom (straight) leg a few inches off the floor, pulse up, lower slowly. Small movement, big burn."},
+  "Calf raises":        {m:["quads"], sets:3, reps:"20",
+    img:"Standing_Calf_Raises", imgAlt:["Calf_Raises_-_With_Bands","Bodyweight_Squat"],
+    how:"Stand tall, one hand on a wall for balance. Rise slowly onto your toes, squeeze at the top, lower for a 3-count. Sculpts the calf line."},
+  "The hundred":        {m:["abs"], sets:3, reps:"45 sec", timed:45,
+    img:"Air_Bike", imgAlt:["Bent-Knee_Hip_Raise"],
+    how:"The signature Pilates move. Lie on your back, lift head and shoulders, legs raised \u2014 bent at 90\u00b0 for easier, straight at 45\u00b0 for harder. Arms straight by your sides, pump them up and down in small beats: breathe in for 5 beats, out for 5. Lower back stays pressed into the floor. (Photo shows a similar position.)"},
+  "Dead bug":           {m:["abs"], sets:3, reps:"12 / side",
+    img:"Dead_Bug", imgAlt:["Bent-Knee_Hip_Raise"],
+    how:"On your back, arms straight up, knees bent at 90\u00b0 over your hips. Slowly extend your right arm behind your head and left leg out straight at the same time, hovering above the floor. Return, swap sides. Lower back glued down throughout."},
+  "Criss-cross":        {m:["obliques","abs"], sets:3, reps:"20",
+    img:"Air_Bike", imgAlt:["Alternate_Heel_Touchers"],
+    how:"The Pilates version of a bicycle crunch \u2014 slower and more controlled. Hands behind your head, rotate your ribcage to bring one elbow toward the opposite knee as you extend the other leg. Rotate from the waist, don't pull on your neck."},
+  "Plank":              {m:["abs","obliques"], sets:3, reps:"30-45 sec", timed:40,
+    img:"Plank", imgAlt:["Body-Up"],
+    how:"Forearms down, body in one straight line from head to heels. Pull your belly button toward your spine, squeeze glutes, breathe steadily. Don't let the hips sag or pike up."},
+  "Scissor kicks":      {m:["abs"], sets:3, reps:"20",
+    img:"Scissor_Kick", imgAlt:["Flutter_Kicks","Bent-Knee_Hip_Raise"],
+    how:"Lie flat, hands under your bum for support, legs straight and hovering off the floor. Cross one leg over the other in a slow scissor motion, keeping both off the ground. Lower back pressed down the whole time."},
+  "Side plank":         {m:["obliques","abs"], sets:2, reps:"20-30 sec / side", timed:25,
+    img:"Side_Bridge", imgAlt:["Plank"],
+    how:"On your side, forearm down, feet stacked. Lift your hips so your body makes one straight diagonal line. Hold and breathe. Do both sides \u2014 this is the one that carves the waistline."},
+  "Walking lunges":     {m:["quads","glutes","hams"], sets:3, reps:"10 / side",
+    img:"Bodyweight_Walking_Lunge", imgAlt:["Bodyweight_Squat"],
+    how:"Step forward and lower the back knee toward the floor, keeping your front knee over your foot. Push through the front heel to step straight into the next lunge. Slow and controlled \u2014 tempo over speed."},
+  "Knee push-ups":      {m:["chest","triceps","shoulders"], sets:3, reps:"8-12",
+    img:"Pushups", imgAlt:["Push-Up_Wide","Push-Ups_With_Feet_Elevated"],
+    how:"From your knees, hands slightly wider than shoulders. Lower your chest to the floor slowly, press back up. Tones arms without building bulk \u2014 bodyweight gives definition, not size. (If the photo shows full push-ups, just do them from your knees.)"},
+  "Bird dog":           {m:["lowback","glutes","abs"], sets:3, reps:"10 / side",
+    img:"Dead_Bug", imgAlt:["Glute_Kickback"],
+    how:"On all fours, extend your right arm forward and left leg back until both are level with your torso. Hold 2 seconds, return slowly, swap. Brilliant for posture and a long, lean line. (Photo shows dead bug \u2014 same idea flipped onto all fours.)"},
+  "Glute bridge march": {m:["glutes","abs","hams"], sets:3, reps:"10 / side",
+    img:"Butt_Lift_Bridge", imgAlt:["Bent-Knee_Hip_Raise"],
+    how:"Hold the top of a glute bridge and slowly lift one foot off the floor, bringing the knee toward you without letting your hips drop. Place it down, swap. Hips stay level \u2014 imagine balancing a tray of drinks on them."},
+  "Roll-ups":           {m:["abs"], sets:3, reps:"8",
+    img:"3_4_Sit-Up", imgAlt:["Sit-Up"],
+    how:"A Pilates classic. Lie flat, arms overhead. Slowly peel your spine off the mat one vertebra at a time, reaching for your toes, then roll back down just as slowly. 4-5 seconds each way. Much harder than a sit-up when done properly."},
+  "Standing side bends": {m:["obliques"], sets:3, reps:"12 / side",
+    img:"Alternate_Heel_Touchers", imgAlt:["Standing_Rope_Crunch"],
+    how:"Stand tall, one hand behind your head, reach the other arm overhead and bend sideways slowly, feeling the stretch down your side, then use your waist muscles to pull yourself back upright. Controlled \u2014 no bouncing. (Photo shows the floor version \u2014 same waist muscles working.)"}
+};
+
+/* ============ WEEKLY PLANS ============ */
+const PROFILES = {
+  george: {
+    name:"George",
+    accent:"#ffd60a",
+    tagline:"Two dumbbells. Short rests. In and out fast.",
+    ex: EX_GEORGE,
+    week: [
+      {day:"Monday",    focus:"Chest & Triceps", color:"var(--chest)", ex:["Bench press","Incline press","Flyes","Overhead tricep extension","Tricep kickbacks"]},
+      {day:"Tuesday",   focus:"Back & Biceps",   color:"var(--back)",  ex:["Bent-over rows","Single-arm rows","Pullovers","Bicep curls","Hammer curls"]},
+      {day:"Wednesday", focus:"Abs & Core",      color:"var(--abs)",   ex:["Weighted sit-ups","Russian twists","Deadbug","Weighted plank"]},
+      {day:"Thursday",  focus:"Rest",            color:"var(--line)",  ex:[]},
+      {day:"Friday",    focus:"Full Body Burnout",color:"var(--arms)", ex:["Renegade rows","Squeeze press","Curl to press","Deadlifts"]},
+      {day:"Saturday",  focus:"Chest & Back \u00b7 lighter", color:"var(--chest)", ex:["Bench press","Bent-over rows","Flyes","Pullovers"], lighter:true},
+      {day:"Sunday",    focus:"Rest",            color:"var(--line)",  ex:[]}
+    ]
+  },
+  sophie: {
+    name:"Sophie",
+    accent:"#ff8fb1",
+    tagline:"Pilates-based toning. No weights. Slow and controlled.",
+    ex: EX_SOPHIE,
+    week: [
+      {day:"Monday",    focus:"Legs & Glutes",   color:"var(--legs)",  ex:["Glute bridge","Donkey kicks","Slow squats","Side-lying leg lifts","Calf raises"]},
+      {day:"Tuesday",   focus:"Core \u00b7 Pilates",   color:"var(--abs)",   ex:["The hundred","Dead bug","Criss-cross","Roll-ups","Plank"]},
+      {day:"Wednesday", focus:"Rest \u00b7 walk or stretch", color:"var(--line)", ex:[]},
+      {day:"Thursday",  focus:"Full Body Sculpt", color:"var(--arms)", ex:["Walking lunges","Knee push-ups","Bird dog","Glute bridge march","Side plank"]},
+      {day:"Friday",    focus:"Legs & Waist",    color:"var(--legs)",  ex:["Slow squats","Inner thigh lifts","Donkey kicks","Standing side bends","Scissor kicks"]},
+      {day:"Saturday",  focus:"Core \u00b7 lighter",   color:"var(--abs)",   ex:["The hundred","Dead bug","Plank","Side plank"], lighter:true},
+      {day:"Sunday",    focus:"Rest",            color:"var(--line)",  ex:[]}
+    ]
+  }
+};
 
 const MUSCLE_COLOR = {
   chest:"var(--chest)", upperchest:"var(--chest)",
@@ -239,24 +351,6 @@ const MUSCLE_COLOR = {
   biceps:"var(--arms)", triceps:"var(--arms)", shoulders:"var(--shoulders)",
   abs:"var(--abs)", obliques:"var(--abs)",
   glutes:"var(--legs)", hams:"var(--legs)", quads:"var(--legs)"
-};
-
-/* image URL helpers: 0.jpg = start pose, 1.jpg = finish pose */
-function imgURL(id, pose){ return IMG_BASE + id + "/" + pose + ".jpg"; }
-
-/* onerror chain: try next fallback ID, else hide the photo panel */
-window.imgFail = function(imgEl){
-  const alts = JSON.parse(imgEl.dataset.alts || "[]");
-  if(alts.length){
-    const next = alts.shift();
-    imgEl.dataset.alts = JSON.stringify(alts);
-    imgEl.dataset.id = next;
-    imgEl.src = imgURL(next, imgEl.dataset.pose || "0");
-  } else {
-    const panel = imgEl.closest(".photo-panel");
-    if(panel) panel.style.display = "none";
-    if(imgEl.classList.contains("thumb")) imgEl.style.display = "none";
-  }
 };
 
 /* ============ BODY DIAGRAM ============ */
@@ -305,11 +399,17 @@ function bodySVG(highlight){
 }
 
 /* ============ STATE ============ */
-let screen = {name:"week"};
+let screen = {name:"picker"};
+let profile = null;
 let restLen = 45;
-let doneDays = {};
+let doneDays = {george:{}, sophie:{}};
 let timerInt = null;
 let poseInt = null;
+
+function P(){ return PROFILES[profile]; }
+function setAccent(){
+  document.documentElement.style.setProperty("--accent", profile ? P().accent : "#ffd60a");
+}
 
 /* ============ AUDIO ============ */
 let audioCtx = null;
@@ -331,18 +431,49 @@ const app = document.getElementById("app");
 function render(){
   clearInterval(timerInt);
   clearInterval(poseInt);
-  if(screen.name==="week") renderWeek();
+  setAccent();
+  if(screen.name==="picker") renderPicker();
+  else if(screen.name==="week") renderWeek();
   else if(screen.name==="day") renderDay(screen.dayIdx);
   else if(screen.name==="player") renderPlayer();
   window.scrollTo(0,0);
 }
 
-function renderWeek(){
+function renderPicker(){
   app.innerHTML = `
-    <div class="topbar"><div class="brand display">Dumbbell <em>Coach</em></div></div>
+    <div class="picker">
+      <h1 class="display">George & Sophie's<br>Workouts</h1>
+      <p>Who's working out today?</p>
+      <button class="profile-btn" onclick="pickProfile('george')">
+        <div class="avatar" style="background:#ffd60a">G</div>
+        <div>
+          <div class="pname">George</div>
+          <div class="pdesc">Dumbbell strength \u00b7 chest, back, arms, abs</div>
+        </div>
+      </button>
+      <button class="profile-btn" onclick="pickProfile('sophie')">
+        <div class="avatar" style="background:#ff8fb1">S</div>
+        <div>
+          <div class="pname">Sophie</div>
+          <div class="pdesc">Pilates toning \u00b7 legs, core, no weights</div>
+        </div>
+      </button>
+    </div>
+  `;
+}
+
+window.pickProfile = p => { profile = p; screen={name:"week"}; render(); };
+
+function renderWeek(){
+  const pr = P();
+  app.innerHTML = `
+    <div class="topbar">
+      <button class="backbtn" onclick="goPicker()">\u2190 Switch</button>
+      <div class="brand display">${pr.name}<em>'s Week</em></div>
+    </div>
     <div class="week-hero">
       <h1 class="display">Your Week</h1>
-      <p>Two dumbbells. Short rests. In and out fast.</p>
+      <p>${pr.tagline}</p>
     </div>
     <div class="legend">
       <span><i style="background:var(--chest)"></i>Chest</span>
@@ -351,17 +482,17 @@ function renderWeek(){
       <span><i style="background:var(--abs)"></i>Abs</span>
       <span><i style="background:var(--legs)"></i>Legs</span>
     </div>
-    ${WEEK.map((d,i)=>{
+    ${pr.week.map((d,i)=>{
       if(d.ex.length===0) return `
         <div class="daycard rest-day">
           <div class="dot" style="background:${d.color}"></div>
-          <div class="info"><div class="dayname">${d.day}</div><div class="focus">${d.focus} — recover, walk, stretch</div></div>
+          <div class="info"><div class="dayname">${d.day}</div><div class="focus">${d.focus}</div></div>
         </div>`;
       return `
         <button class="daycard" onclick="openDay(${i})">
           <div class="dot" style="background:${d.color}"></div>
           <div class="info">
-            <div class="dayname">${d.day} ${doneDays[i]?'<span class="done-badge">✓ Done</span>':''}</div>
+            <div class="dayname">${d.day} ${doneDays[profile][i]?'<span class="done-badge">\u2713 Done</span>':''}</div>
             <div class="focus">${d.focus}</div>
           </div>
           <div class="count">${d.ex.length} exercises</div>
@@ -370,63 +501,63 @@ function renderWeek(){
   `;
 }
 
+window.goPicker = () => { profile=null; screen={name:"picker"}; render(); };
 window.openDay = i => { screen={name:"day", dayIdx:i}; render(); };
+window.goWeek = () => { screen={name:"week"}; render(); };
 
 function musclesForDay(d){
   const s = new Set();
-  d.ex.forEach(e => EXDB[e].m.forEach(m=>s.add(m)));
+  d.ex.forEach(e => P().ex[e].m.forEach(m=>s.add(m)));
   return [...s];
 }
 
 function renderDay(i){
-  const d = WEEK[i];
+  const d = P().week[i];
   const muscles = musclesForDay(d);
   app.innerHTML = `
     <div class="topbar">
-      <button class="backbtn" onclick="goWeek()">← Week</button>
-      <div class="brand display">DB <em>Coach</em></div>
+      <button class="backbtn" onclick="goWeek()">\u2190 Week</button>
+      <div class="brand display">${P().name}<em>'s Week</em></div>
     </div>
     <div class="day-head">
       <h1 class="display">${d.day}</h1>
-      <div class="focus-line">${d.focus}${d.lighter?' — go a bit lighter than Monday':''}</div>
+      <div class="focus-line">${d.focus}${d.lighter?' \u2014 take it a touch easier than earlier in the week':''}</div>
     </div>
     <div class="diagram-wrap">${bodySVG(muscles)}</div>
     ${d.ex.map((e,j)=>{
-      const x = EXDB[e];
+      const x = P().ex[e];
       return `<button class="ex-row" onclick="startPlayer(${i},${j})">
         <img class="thumb" src="${imgURL(x.img,0)}" data-id="${x.img}" data-pose="0" data-alts='${JSON.stringify(x.imgAlt||[])}' onerror="imgFail(this)" alt="" loading="lazy">
-        <div class="mid"><div class="nm">${e}</div><div class="muscles-tag">${x.m.join(" · ")}</div></div>
-        <div class="sr">${x.sets} × ${x.reps}</div>
+        <div class="mid"><div class="nm">${e}</div><div class="muscles-tag">${x.m.join(" \u00b7 ")}</div></div>
+        <div class="sr">${x.sets} \u00d7 ${x.reps}</div>
       </button>`;
     }).join("")}
-    <button class="startall" onclick="startPlayer(${i},0)">Start workout ▶</button>
+    <button class="startall" onclick="startPlayer(${i},0)">Start workout \u25b6</button>
   `;
 }
-
-window.goWeek = () => { screen={name:"week"}; render(); };
 
 /* ============ PLAYER ============ */
 window.startPlayer = (dayIdx, exIdx) => {
   screen = {name:"player", dayIdx, exIdx, set:1, mode:"work", t:0};
-  const ex = EXDB[WEEK[dayIdx].ex[exIdx]];
+  const ex = P().ex[P().week[dayIdx].ex[exIdx]];
   if(ex.timed) screen.t = ex.timed;
   render();
 };
 
 function renderPlayer(){
-  const d = WEEK[screen.dayIdx];
+  const d = P().week[screen.dayIdx];
   const name = d.ex[screen.exIdx];
-  const ex = EXDB[name];
+  const ex = P().ex[name];
   const isTimed = !!ex.timed;
 
   if(screen.mode==="finished"){
-    doneDays[screen.dayIdx]=true;
+    doneDays[profile][screen.dayIdx]=true;
     app.innerHTML = `
-      <div class="topbar"><button class="backbtn" onclick="goWeek()">← Week</button><div class="brand display">DB <em>Coach</em></div></div>
+      <div class="topbar"><button class="backbtn" onclick="goWeek()">\u2190 Week</button><div class="brand display">${P().name}<em>'s Week</em></div></div>
       <div class="player">
         <div class="finished-card">
           <h2 class="display">Workout done</h2>
-          <p>${d.day} — ${d.focus} complete. Eat some protein, drink water, and let the soreness do its thing.</p>
+          <p>${d.day} \u2014 ${d.focus} complete. Nice one, ${P().name}. Water, food, recover.</p>
           <button class="mainbtn" onclick="goWeek()">Back to week</button>
         </div>
       </div>`;
@@ -438,21 +569,21 @@ function renderPlayer(){
 
   app.innerHTML = `
     <div class="topbar">
-      <button class="backbtn" onclick="openDay(${screen.dayIdx})">← Exit</button>
-      <div class="brand display">DB <em>Coach</em></div>
+      <button class="backbtn" onclick="openDay(${screen.dayIdx})">\u2190 Exit</button>
+      <div class="brand display">${P().name}<em>'s Week</em></div>
     </div>
     <div class="player">
       <div class="progress-track">
         ${d.ex.map((_,j)=>`<span class="${j<screen.exIdx?'done':j===screen.exIdx?'now':''}"></span>`).join("")}
       </div>
       <h1 class="ex-title display">${name}</h1>
-      <div class="ex-sub">Exercise ${screen.exIdx+1} of ${d.ex.length} · ${ex.sets} sets × ${ex.reps}</div>
+      <div class="ex-sub">Exercise ${screen.exIdx+1} of ${d.ex.length} \u00b7 ${ex.sets} sets \u00d7 ${ex.reps}</div>
 
       <div class="photo-panel">
         <img id="poseImg" src="${imgURL(ex.img,0)}" data-id="${ex.img}" data-pose="0" data-alts='${JSON.stringify(ex.imgAlt||[])}' onerror="imgFail(this)" alt="How to do ${name}">
         <div class="pose-tag" id="poseTag">Start position</div>
       </div>
-      <div class="photo-note">Photo flips between start and finish · public-domain images (free-exercise-db)</div>
+      <div class="photo-note">Photo flips between start and finish \u00b7 public-domain images (free-exercise-db)</div>
 
       <div class="diagram-wrap mini-diagram">${bodySVG(ex.m)}</div>
       <div class="howto">${ex.how}</div>
@@ -463,28 +594,28 @@ function renderPlayer(){
       ${resting ? `
         <div class="timer-block">
           <div class="big-time resting" id="clock">${fmt(screen.t)}</div>
-          <div class="state-label">Rest — next: ${nextLabel()}</div>
+          <div class="state-label">Rest \u2014 next: ${nextLabel()}</div>
         </div>
         <div class="rest-opts">
           ${[30,45,60].map(s=>`<button class="rest-opt ${restLen===s?'sel':''}" onclick="setRest(${s})">${s}s</button>`).join("")}
         </div>
-        <button class="mainbtn resting" onclick="skipRest()">Skip rest ▶</button>
+        <button class="mainbtn resting" onclick="skipRest()">Skip rest \u25b6</button>
         <div class="subrow"><button class="subbtn" onclick="addRest()">+15 sec</button></div>
       ` : working ? `
         <div class="timer-block">
           <div class="big-time working" id="clock">${fmt(screen.t)}</div>
-          <div class="state-label">Hold — set ${screen.set} of ${ex.sets}</div>
+          <div class="state-label">Hold \u2014 set ${screen.set} of ${ex.sets}</div>
         </div>
-        <button class="mainbtn" onclick="finishSet()">Done early ✓</button>
+        <button class="mainbtn" onclick="finishSet()">Done early \u2713</button>
       ` : `
         <div class="timer-block">
           <div class="big-time">${isTimed ? fmt(ex.timed) : ex.reps}</div>
-          <div class="state-label">${isTimed ? "Timed hold" : "Reps"} — set ${screen.set} of ${ex.sets}</div>
+          <div class="state-label">${isTimed ? "Timed" : "Reps"} \u2014 set ${screen.set} of ${ex.sets}</div>
         </div>
         <div class="rest-opts">
           ${[30,45,60].map(s=>`<button class="rest-opt ${restLen===s?'sel':''}" onclick="setRest(${s})">${s}s rest</button>`).join("")}
         </div>
-        <button class="mainbtn" onclick="${isTimed?'startTimedSet()':'finishSet()'}">${isTimed?'Start hold ▶':'Set done ✓'}</button>
+        <button class="mainbtn" onclick="${isTimed?'startTimedSet()':'finishSet()'}">${isTimed?'Start \u25b6':'Set done \u2713'}</button>
         <div class="subrow">
           <button class="subbtn" onclick="skipExercise()">Skip exercise</button>
         </div>
@@ -492,7 +623,6 @@ function renderPlayer(){
     </div>
   `;
 
-  /* flip between start/finish photos */
   const img = document.getElementById("poseImg");
   const tag = document.getElementById("poseTag");
   if(img){
@@ -526,8 +656,8 @@ function renderPlayer(){
 function fmt(s){ s=Math.max(0,s); return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`; }
 
 function nextLabel(){
-  const d = WEEK[screen.dayIdx];
-  const ex = EXDB[d.ex[screen.exIdx]];
+  const d = P().week[screen.dayIdx];
+  const ex = P().ex[d.ex[screen.exIdx]];
   if(screen.set <= ex.sets) return `Set ${screen.set} of ${d.ex[screen.exIdx]}`;
   return d.ex[screen.exIdx+1] || "Finish";
 }
@@ -537,7 +667,7 @@ window.skipRest = () => { clearInterval(timerInt); screen.mode="work"; render();
 window.addRest = () => { screen.t += 15; };
 
 window.startTimedSet = () => {
-  const ex = EXDB[WEEK[screen.dayIdx].ex[screen.exIdx]];
+  const ex = P().ex[P().week[screen.dayIdx].ex[screen.exIdx]];
   screen.mode = "timedwork"; screen.t = ex.timed;
   beep(1046,0.2);
   render();
@@ -546,8 +676,8 @@ window.startTimedSet = () => {
 window.finishSet = () => { clearInterval(timerInt); finishSetInternal(); render(); };
 
 function finishSetInternal(){
-  const d = WEEK[screen.dayIdx];
-  const ex = EXDB[d.ex[screen.exIdx]];
+  const d = P().week[screen.dayIdx];
+  const ex = P().ex[d.ex[screen.exIdx]];
   if(screen.set >= ex.sets){
     if(screen.exIdx >= d.ex.length-1){ screen.mode="finished"; return; }
     screen.exIdx++; screen.set=1;
@@ -559,9 +689,9 @@ function finishSetInternal(){
 }
 
 window.skipExercise = () => {
-  const d = WEEK[screen.dayIdx];
+  const d = P().week[screen.dayIdx];
   if(screen.exIdx >= d.ex.length-1){ screen.mode="finished"; }
-  else { screen.exIdx++; screen.set=1; screen.mode="work"; const ex=EXDB[d.ex[screen.exIdx]]; if(ex.timed) screen.t=ex.timed; }
+  else { screen.exIdx++; screen.set=1; screen.mode="work"; const ex=P().ex[d.ex[screen.exIdx]]; if(ex.timed) screen.t=ex.timed; }
   render();
 };
 
