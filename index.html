@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dumbbell Coach</title>
+<style>
+  :root{
+    --ink:#101418;
+    --steel:#1b222a;
+    --line:#33404d;
+    --chalk:#e8edf2;
+    --dim:#8b98a5;
+    --volt:#ffd60a;
+    --rest:#3ec6ff;
+    --chest:#ff6b5e; --back:#5e9bff; --arms:#c98bff; --abs:#ffd60a; --legs:#5effa8; --shoulders:#ff9d5e;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{
+    margin:0; background:var(--ink); color:var(--chalk);
+    font-family:-apple-system,'Segoe UI',Roboto,'Archivo',sans-serif;
+    min-height:100vh;
+  }
+  .display{font-weight:900; text-transform:uppercase; letter-spacing:.03em;}
+  #app{max-width:520px; margin:0 auto; padding:20px 16px 90px;}
+
+  .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
+  .brand{font-size:18px;}
+  .brand em{color:var(--volt); font-style:normal;}
+  .backbtn{
+    background:none; border:1px solid var(--line); color:var(--chalk);
+    border-radius:8px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit;
+  }
+  .backbtn:active{background:var(--steel);}
+
+  .week-hero{margin:6px 0 22px;}
+  .week-hero h1{font-size:30px; line-height:1.05; margin:0 0 6px;}
+  .week-hero p{color:var(--dim); font-size:14px; margin:0;}
+  .daycard{
+    width:100%; text-align:left; background:var(--steel); border:1px solid var(--line);
+    border-radius:14px; padding:16px; margin-bottom:10px; cursor:pointer;
+    display:flex; align-items:center; gap:14px; color:var(--chalk); font-family:inherit;
+  }
+  .daycard:active{transform:scale(.99);}
+  .daycard .dot{width:12px; height:12px; border-radius:3px; flex-shrink:0;}
+  .daycard .info{flex:1;}
+  .daycard .dayname{font-weight:700; font-size:15px;}
+  .daycard .focus{color:var(--dim); font-size:13px; margin-top:2px;}
+  .daycard .count{font-size:12px; color:var(--dim); font-variant-numeric:tabular-nums;}
+  .daycard.rest-day{opacity:.55; cursor:default;}
+  .daycard .done-badge{color:var(--legs); font-size:12px; font-weight:700;}
+
+  .day-head h1{font-size:26px; margin:0 0 4px;}
+  .day-head .focus-line{color:var(--dim); font-size:14px; margin-bottom:16px;}
+  .diagram-wrap{
+    background:var(--steel); border:1px solid var(--line); border-radius:16px;
+    padding:14px; display:flex; justify-content:center; gap:10px; margin-bottom:16px;
+  }
+  .diagram-wrap svg{width:44%; max-width:170px; height:auto;}
+  .muscle{fill:#2d3742; stroke:#1b222a; stroke-width:1; transition:fill .3s;}
+  .muscle.hot{filter:drop-shadow(0 0 6px currentColor);}
+  .bodyline{fill:none; stroke:#46535f; stroke-width:2;}
+  .figure-label{fill:var(--dim); font-size:10px; text-anchor:middle; text-transform:uppercase; letter-spacing:1px;}
+
+  .ex-row{
+    width:100%; text-align:left; background:var(--steel); border:1px solid var(--line);
+    border-radius:12px; padding:10px 14px 10px 10px; margin-bottom:8px; cursor:pointer; color:var(--chalk);
+    display:flex; justify-content:space-between; align-items:center; gap:10px; font-family:inherit;
+  }
+  .ex-row .thumb{
+    width:56px; height:56px; border-radius:8px; background:#fff; object-fit:cover; flex-shrink:0;
+  }
+  .ex-row .mid{flex:1;}
+  .ex-row .nm{font-weight:600; font-size:14px;}
+  .ex-row .muscles-tag{font-size:11px; color:var(--dim); margin-top:2px;}
+  .ex-row .sr{color:var(--dim); font-size:13px; font-variant-numeric:tabular-nums;}
+  .startall{
+    width:100%; padding:16px; margin-top:10px; border:none; border-radius:12px;
+    background:var(--volt); color:#111; font-size:15px; cursor:pointer;
+    font-weight:900; text-transform:uppercase; letter-spacing:.04em; font-family:inherit;
+  }
+  .startall:active{transform:scale(.98);}
+
+  .player{text-align:center;}
+  .progress-track{display:flex; gap:4px; margin-bottom:18px;}
+  .progress-track span{flex:1; height:4px; border-radius:2px; background:var(--line);}
+  .progress-track span.done{background:var(--volt);}
+  .progress-track span.now{background:var(--chalk);}
+  .ex-title{font-size:24px; margin:4px 0 2px;}
+  .ex-sub{color:var(--dim); font-size:13px; margin-bottom:12px;}
+
+  .photo-panel{
+    background:#fff; border-radius:16px; overflow:hidden; margin-bottom:12px;
+    position:relative;
+  }
+  .photo-panel img{
+    width:100%; display:block; max-height:250px; object-fit:contain; background:#fff;
+  }
+  .photo-panel .pose-tag{
+    position:absolute; bottom:10px; left:10px; background:rgba(16,20,24,.85);
+    color:var(--chalk); font-size:11px; font-weight:700; letter-spacing:1px;
+    text-transform:uppercase; padding:5px 10px; border-radius:999px;
+  }
+  .photo-note{font-size:11px; color:var(--dim); margin:-4px 0 12px;}
+
+  .mini-diagram{margin-bottom:12px;}
+  .mini-diagram svg{width:34%; max-width:130px;}
+
+  .howto{
+    background:var(--steel); border:1px solid var(--line); border-radius:12px;
+    padding:12px 14px; font-size:13px; color:#b9c4cf; text-align:left; line-height:1.55; margin-bottom:14px;
+  }
+  .set-pips{display:flex; justify-content:center; gap:8px; margin-bottom:14px;}
+  .pip{width:34px; height:34px; border-radius:50%; border:2px solid var(--line); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; color:var(--dim); font-variant-numeric:tabular-nums;}
+  .pip.done{background:var(--volt); border-color:var(--volt); color:#111;}
+  .pip.now{border-color:var(--chalk); color:var(--chalk);}
+
+  .timer-block{margin-bottom:14px;}
+  .big-time{font-size:64px; font-variant-numeric:tabular-nums; line-height:1; font-weight:800;}
+  .big-time.resting{color:var(--rest);}
+  .big-time.working{color:var(--volt);}
+  .state-label{font-size:12px; text-transform:uppercase; letter-spacing:2px; color:var(--dim); margin-top:4px;}
+
+  .mainbtn{
+    width:100%; padding:18px; border:none; border-radius:14px; cursor:pointer;
+    background:var(--volt); color:#111; font-size:16px;
+    font-weight:900; text-transform:uppercase; letter-spacing:.04em; font-family:inherit;
+  }
+  .mainbtn.resting{background:var(--rest);}
+  .mainbtn:active{transform:scale(.98);}
+  .subrow{display:flex; gap:8px; margin-top:10px;}
+  .subbtn{
+    flex:1; padding:12px; background:none; border:1px solid var(--line); color:var(--dim);
+    border-radius:10px; font-size:13px; font-weight:600; cursor:pointer; font-family:inherit;
+  }
+
+  .rest-opts{display:flex; gap:8px; justify-content:center; margin:0 0 16px;}
+  .rest-opt{
+    padding:8px 16px; border-radius:999px; border:1px solid var(--line); background:none;
+    color:var(--dim); font-size:13px; font-weight:700; cursor:pointer; font-family:inherit;
+    font-variant-numeric:tabular-nums;
+  }
+  .rest-opt.sel{background:var(--rest); border-color:var(--rest); color:#08222e;}
+
+  .finished-card{
+    background:var(--steel); border:1px solid var(--legs); border-radius:16px; padding:30px 20px; margin-top:30px;
+  }
+  .finished-card h2{margin:0 0 6px; font-size:24px; color:var(--legs);}
+  .finished-card p{color:var(--dim); font-size:14px; margin:0 0 18px;}
+
+  .legend{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin-top:6px; margin-bottom:16px;}
+  .legend span{font-size:11px; color:var(--dim); display:flex; align-items:center; gap:5px;}
+  .legend i{width:10px; height:10px; border-radius:3px; display:inline-block;}
+
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important; animation:none !important;}
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* ============ EXERCISE DATA ============ */
+/* Photos: public-domain images from free-exercise-db (github.com/yuhonas/free-exercise-db).
+   img: primary exercise ID. imgAlt: fallback IDs tried in order if the primary 404s. */
+const IMG_BASE = "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/";
+
+const EXDB = {
+  "Bench press":        {m:["chest","triceps","shoulders"], sets:4, reps:"8-10",
+    img:"Dumbbell_Bench_Press", imgAlt:["Alternating_Floor_Press"],
+    how:"Lie flat, dumbbells at chest level. Press up until arms are straight, lower slowly for 2-3 seconds. Keep your feet planted and don't let the dumbbells drift toward your head."},
+  "Incline press":      {m:["upperchest","shoulders","triceps"], sets:3, reps:"10-12",
+    img:"Incline_Dumbbell_Press", imgAlt:["Dumbbell_Bench_Press"],
+    how:"Set an incline around 30-45° (prop the bench or use stairs). Press up and slightly back. Slow on the way down — that's where the growth is."},
+  "Flyes":              {m:["chest"], sets:3, reps:"12-15",
+    img:"Dumbbell_Flyes", imgAlt:["Around_The_Worlds"],
+    how:"Slight bend in the elbows, lower the dumbbells wide until you feel a stretch across your chest, then squeeze them back together like you're hugging a barrel."},
+  "Overhead tricep extension": {m:["triceps"], sets:3, reps:"12",
+    img:"Standing_Dumbbell_Triceps_Extension", imgAlt:["Seated_Triceps_Press"],
+    how:"Hold one dumbbell with both hands overhead. Lower it behind your head by bending only at the elbows, then press back up. Keep elbows pointing forward, not flaring out."},
+  "Tricep kickbacks":   {m:["triceps"], sets:3, reps:"12",
+    img:"Tricep_Dumbbell_Kickback", imgAlt:["Standing_Bent-Over_One-Arm_Dumbbell_Triceps_Extension"],
+    how:"Hinge forward, upper arm locked parallel to the floor. Extend the dumbbell back until your arm is straight, squeeze for a second, return slowly."},
+  "Bent-over rows":     {m:["lats","midback","biceps"], sets:4, reps:"8-10",
+    img:"Bent_Over_Two-Dumbbell_Row", imgAlt:["Bent_Over_Two-Dumbbell_Row_With_Palms_In"],
+    how:"Hinge at the hips, flat back, dumbbells hanging. Pull them to your lower ribs, elbows tucked. Squeeze your shoulder blades together at the top."},
+  "Single-arm rows":    {m:["lats","midback","biceps"], sets:3, reps:"10-12 / side",
+    img:"One-Arm_Dumbbell_Row", imgAlt:["Alternating_Kettlebell_Row"],
+    how:"One hand braced on a bench or your knee. Row the dumbbell to your hip, not your chest. Full stretch at the bottom, hard squeeze at the top. Do both sides per set."},
+  "Pullovers":          {m:["lats","chest"], sets:3, reps:"12",
+    img:"Straight-Arm_Dumbbell_Pullover", imgAlt:["Bent-Arm_Dumbbell_Pullover"],
+    how:"Lie on your back, one dumbbell held over your chest with both hands. Lower it in an arc behind your head until you feel a big stretch, then pull it back over."},
+  "Bicep curls":        {m:["biceps"], sets:3, reps:"12",
+    img:"Dumbbell_Bicep_Curl", imgAlt:["Dumbbell_Alternate_Bicep_Curl","Standing_Dumbbell_Curl"],
+    how:"Elbows pinned to your sides. Curl up without swinging, lower for a slow 2-3 count. If you're rocking your body, the weight is too heavy."},
+  "Hammer curls":       {m:["biceps"], sets:3, reps:"12",
+    img:"Alternate_Hammer_Curl", imgAlt:["Hammer_Curls"],
+    how:"Same as curls but palms facing each other the whole time. Hits the forearms and the thicker part of the arm."},
+  "Weighted sit-ups":   {m:["abs"], sets:3, reps:"15",
+    img:"3_4_Sit-Up", imgAlt:["Sit-Up"],
+    how:"Hold a dumbbell against your chest. Sit up under control, lower back down slowly — don't just flop back. (Photo shows the bodyweight version — just add the dumbbell to your chest.)"},
+  "Russian twists":     {m:["obliques","abs"], sets:3, reps:"20",
+    img:"Russian_Twist", imgAlt:["Seated_Barbell_Twist"],
+    how:"Sit back at 45°, hold the dumbbell with both hands, rotate side to side. Feet up = harder. One left-right = one rep."},
+  "Deadbug":            {m:["abs"], sets:3, reps:"12 / side",
+    img:"Dead_Bug", imgAlt:["Bent-Knee_Hip_Raise"],
+    how:"On your back, dumbbell held straight up over your chest. Extend opposite arm and leg away slowly, keep your lower back glued to the floor."},
+  "Weighted plank":     {m:["abs","obliques"], sets:3, reps:"40 sec", timed:40,
+    img:"Plank", imgAlt:["Body-Up"],
+    how:"Plank on forearms, dumbbell (or plate) on your lower back — or just bodyweight. Squeeze glutes and abs, don't let hips sag."},
+  "Renegade rows":      {m:["lats","midback","abs","biceps"], sets:3, reps:"10",
+    img:"Alternating_Renegade_Row", imgAlt:["One-Arm_Dumbbell_Row"],
+    how:"Plank position with hands on the dumbbells. Row one up to your hip while bracing hard so your hips don't twist. Alternate sides. (Photo shows it with kettlebells — same movement with dumbbells.)"},
+  "Squeeze press":      {m:["chest","triceps"], sets:3, reps:"12",
+    img:"Dumbbell_Bench_Press", imgAlt:["Alternating_Floor_Press"],
+    how:"Press the two dumbbells together over your chest and keep squeezing them into each other as you press up and down. Constant chest tension. (Photo shows standard bench press — same position, just keep the dumbbells touching.)"},
+  "Curl to press":      {m:["biceps","shoulders","triceps"], sets:3, reps:"10",
+    img:"Arnold_Dumbbell_Press", imgAlt:["Standing_Dumbbell_Press"],
+    how:"Curl the dumbbells up, then rotate and press them overhead in one flow. Lower in reverse. Brutal for the whole arm and shoulders. (Photo shows the Arnold press — very similar rotation and press, yours just starts from a curl at your sides.)"},
+  "Deadlifts":          {m:["lowback","glutes","hams"], sets:3, reps:"10",
+    img:"Romanian_Deadlift_With_Dumbbells", imgAlt:["Stiff-Legged_Dumbbell_Deadlift","Stiff_Legged_Dumbbell_Deadlift"],
+    how:"Dumbbells in front of your thighs. Hinge at the hips, push your bum back, flat back, lower to mid-shin, then drive hips forward to stand. Not a squat — a hinge."}
+};
+
+const WEEK = [
+  {day:"Monday",    focus:"Chest & Triceps", color:"var(--chest)", ex:["Bench press","Incline press","Flyes","Overhead tricep extension","Tricep kickbacks"]},
+  {day:"Tuesday",   focus:"Back & Biceps",   color:"var(--back)",  ex:["Bent-over rows","Single-arm rows","Pullovers","Bicep curls","Hammer curls"]},
+  {day:"Wednesday", focus:"Abs & Core",      color:"var(--abs)",   ex:["Weighted sit-ups","Russian twists","Deadbug","Weighted plank"]},
+  {day:"Thursday",  focus:"Rest",            color:"var(--line)",  ex:[]},
+  {day:"Friday",    focus:"Full Body Burnout",color:"var(--arms)", ex:["Renegade rows","Squeeze press","Curl to press","Deadlifts"]},
+  {day:"Saturday",  focus:"Chest & Back · lighter", color:"var(--chest)", ex:["Bench press","Bent-over rows","Flyes","Pullovers"], lighter:true},
+  {day:"Sunday",    focus:"Rest",            color:"var(--line)",  ex:[]}
+];
+
+const MUSCLE_COLOR = {
+  chest:"var(--chest)", upperchest:"var(--chest)",
+  lats:"var(--back)", midback:"var(--back)", lowback:"var(--back)",
+  biceps:"var(--arms)", triceps:"var(--arms)", shoulders:"var(--shoulders)",
+  abs:"var(--abs)", obliques:"var(--abs)",
+  glutes:"var(--legs)", hams:"var(--legs)", quads:"var(--legs)"
+};
+
+/* image URL helpers: 0.jpg = start pose, 1.jpg = finish pose */
+function imgURL(id, pose){ return IMG_BASE + id + "/" + pose + ".jpg"; }
+
+/* onerror chain: try next fallback ID, else hide the photo panel */
+window.imgFail = function(imgEl){
+  const alts = JSON.parse(imgEl.dataset.alts || "[]");
+  if(alts.length){
+    const next = alts.shift();
+    imgEl.dataset.alts = JSON.stringify(alts);
+    imgEl.dataset.id = next;
+    imgEl.src = imgURL(next, imgEl.dataset.pose || "0");
+  } else {
+    const panel = imgEl.closest(".photo-panel");
+    if(panel) panel.style.display = "none";
+    if(imgEl.classList.contains("thumb")) imgEl.style.display = "none";
+  }
+};
+
+/* ============ BODY DIAGRAM ============ */
+function bodySVG(highlight){
+  const h = m => highlight.includes(m) ? `class="muscle hot" style="fill:${MUSCLE_COLOR[m]}; color:${MUSCLE_COLOR[m]}"` : `class="muscle"`;
+  const front = `
+  <svg viewBox="0 0 120 240" aria-label="Front muscle diagram">
+    <text x="60" y="12" class="figure-label">Front</text>
+    <circle cx="60" cy="30" r="11" class="bodyline"/>
+    <path d="M49 44 L71 44 L76 60 L44 60 Z" ${h("shoulders")}/>
+    <path d="M44 60 L60 60 L60 84 L46 82 Z" ${h("chest")}/>
+    <path d="M60 60 L76 60 L74 82 L60 84 Z" ${h("chest")}/>
+    <path d="M47 55 L73 55 L74 62 L46 62 Z" ${h("upperchest")}/>
+    <rect x="48" y="86" width="24" height="30" rx="4" ${h("abs")}/>
+    <path d="M44 86 L48 86 L48 116 L45 112 Z" ${h("obliques")}/>
+    <path d="M72 86 L76 86 L75 112 L72 116 Z" ${h("obliques")}/>
+    <path d="M40 62 L46 62 L44 88 L37 86 Z" ${h("biceps")}/>
+    <path d="M74 62 L80 62 L83 86 L76 88 Z" ${h("biceps")}/>
+    <path d="M36 88 L44 90 L41 112 L34 110 Z" class="muscle"/>
+    <path d="M76 90 L84 88 L86 110 L79 112 Z" class="muscle"/>
+    <path d="M48 120 L59 120 L58 160 L48 158 Z" ${h("quads")}/>
+    <path d="M61 120 L72 120 L72 158 L62 160 Z" ${h("quads")}/>
+    <path d="M49 162 L58 162 L57 195 L50 195 Z" class="muscle"/>
+    <path d="M62 162 L71 162 L70 195 L63 195 Z" class="muscle"/>
+  </svg>`;
+  const back = `
+  <svg viewBox="0 0 120 240" aria-label="Back muscle diagram">
+    <text x="60" y="12" class="figure-label">Back</text>
+    <circle cx="60" cy="30" r="11" class="bodyline"/>
+    <path d="M49 44 L71 44 L76 60 L44 60 Z" ${h("shoulders")}/>
+    <path d="M46 60 L74 60 L70 74 L50 74 Z" ${h("midback")}/>
+    <path d="M46 62 L54 74 L50 96 L44 84 Z" ${h("lats")}/>
+    <path d="M74 62 L76 84 L70 96 L66 74 Z" ${h("lats")}/>
+    <path d="M52 96 L68 96 L68 114 L52 114 Z" ${h("lowback")}/>
+    <path d="M40 62 L46 62 L44 88 L37 86 Z" ${h("triceps")}/>
+    <path d="M74 62 L80 62 L83 86 L76 88 Z" ${h("triceps")}/>
+    <path d="M36 88 L44 90 L41 112 L34 110 Z" class="muscle"/>
+    <path d="M76 90 L84 88 L86 110 L79 112 Z" class="muscle"/>
+    <path d="M48 116 L72 116 L71 132 L49 132 Z" ${h("glutes")}/>
+    <path d="M49 134 L59 134 L58 164 L49 162 Z" ${h("hams")}/>
+    <path d="M61 134 L71 134 L71 162 L62 164 Z" ${h("hams")}/>
+    <path d="M50 166 L58 166 L57 196 L51 196 Z" class="muscle"/>
+    <path d="M62 166 L70 166 L69 196 L63 196 Z" class="muscle"/>
+  </svg>`;
+  return front + back;
+}
+
+/* ============ STATE ============ */
+let screen = {name:"week"};
+let restLen = 45;
+let doneDays = {};
+let timerInt = null;
+let poseInt = null;
+
+/* ============ AUDIO ============ */
+let audioCtx = null;
+function beep(freq=880, dur=0.15){
+  try{
+    audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+    const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+    o.frequency.value = freq; o.type="square";
+    g.gain.setValueAtTime(0.08, audioCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime+dur);
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime+dur);
+  }catch(e){}
+}
+
+/* ============ RENDER ============ */
+const app = document.getElementById("app");
+
+function render(){
+  clearInterval(timerInt);
+  clearInterval(poseInt);
+  if(screen.name==="week") renderWeek();
+  else if(screen.name==="day") renderDay(screen.dayIdx);
+  else if(screen.name==="player") renderPlayer();
+  window.scrollTo(0,0);
+}
+
+function renderWeek(){
+  app.innerHTML = `
+    <div class="topbar"><div class="brand display">Dumbbell <em>Coach</em></div></div>
+    <div class="week-hero">
+      <h1 class="display">Your Week</h1>
+      <p>Two dumbbells. Short rests. In and out fast.</p>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--chest)"></i>Chest</span>
+      <span><i style="background:var(--back)"></i>Back</span>
+      <span><i style="background:var(--arms)"></i>Arms</span>
+      <span><i style="background:var(--abs)"></i>Abs</span>
+      <span><i style="background:var(--legs)"></i>Legs</span>
+    </div>
+    ${WEEK.map((d,i)=>{
+      if(d.ex.length===0) return `
+        <div class="daycard rest-day">
+          <div class="dot" style="background:${d.color}"></div>
+          <div class="info"><div class="dayname">${d.day}</div><div class="focus">${d.focus} — recover, walk, stretch</div></div>
+        </div>`;
+      return `
+        <button class="daycard" onclick="openDay(${i})">
+          <div class="dot" style="background:${d.color}"></div>
+          <div class="info">
+            <div class="dayname">${d.day} ${doneDays[i]?'<span class="done-badge">✓ Done</span>':''}</div>
+            <div class="focus">${d.focus}</div>
+          </div>
+          <div class="count">${d.ex.length} exercises</div>
+        </button>`;
+    }).join("")}
+  `;
+}
+
+window.openDay = i => { screen={name:"day", dayIdx:i}; render(); };
+
+function musclesForDay(d){
+  const s = new Set();
+  d.ex.forEach(e => EXDB[e].m.forEach(m=>s.add(m)));
+  return [...s];
+}
+
+function renderDay(i){
+  const d = WEEK[i];
+  const muscles = musclesForDay(d);
+  app.innerHTML = `
+    <div class="topbar">
+      <button class="backbtn" onclick="goWeek()">← Week</button>
+      <div class="brand display">DB <em>Coach</em></div>
+    </div>
+    <div class="day-head">
+      <h1 class="display">${d.day}</h1>
+      <div class="focus-line">${d.focus}${d.lighter?' — go a bit lighter than Monday':''}</div>
+    </div>
+    <div class="diagram-wrap">${bodySVG(muscles)}</div>
+    ${d.ex.map((e,j)=>{
+      const x = EXDB[e];
+      return `<button class="ex-row" onclick="startPlayer(${i},${j})">
+        <img class="thumb" src="${imgURL(x.img,0)}" data-id="${x.img}" data-pose="0" data-alts='${JSON.stringify(x.imgAlt||[])}' onerror="imgFail(this)" alt="" loading="lazy">
+        <div class="mid"><div class="nm">${e}</div><div class="muscles-tag">${x.m.join(" · ")}</div></div>
+        <div class="sr">${x.sets} × ${x.reps}</div>
+      </button>`;
+    }).join("")}
+    <button class="startall" onclick="startPlayer(${i},0)">Start workout ▶</button>
+  `;
+}
+
+window.goWeek = () => { screen={name:"week"}; render(); };
+
+/* ============ PLAYER ============ */
+window.startPlayer = (dayIdx, exIdx) => {
+  screen = {name:"player", dayIdx, exIdx, set:1, mode:"work", t:0};
+  const ex = EXDB[WEEK[dayIdx].ex[exIdx]];
+  if(ex.timed) screen.t = ex.timed;
+  render();
+};
+
+function renderPlayer(){
+  const d = WEEK[screen.dayIdx];
+  const name = d.ex[screen.exIdx];
+  const ex = EXDB[name];
+  const isTimed = !!ex.timed;
+
+  if(screen.mode==="finished"){
+    doneDays[screen.dayIdx]=true;
+    app.innerHTML = `
+      <div class="topbar"><button class="backbtn" onclick="goWeek()">← Week</button><div class="brand display">DB <em>Coach</em></div></div>
+      <div class="player">
+        <div class="finished-card">
+          <h2 class="display">Workout done</h2>
+          <p>${d.day} — ${d.focus} complete. Eat some protein, drink water, and let the soreness do its thing.</p>
+          <button class="mainbtn" onclick="goWeek()">Back to week</button>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const resting = screen.mode==="rest";
+  const working = screen.mode==="timedwork";
+
+  app.innerHTML = `
+    <div class="topbar">
+      <button class="backbtn" onclick="openDay(${screen.dayIdx})">← Exit</button>
+      <div class="brand display">DB <em>Coach</em></div>
+    </div>
+    <div class="player">
+      <div class="progress-track">
+        ${d.ex.map((_,j)=>`<span class="${j<screen.exIdx?'done':j===screen.exIdx?'now':''}"></span>`).join("")}
+      </div>
+      <h1 class="ex-title display">${name}</h1>
+      <div class="ex-sub">Exercise ${screen.exIdx+1} of ${d.ex.length} · ${ex.sets} sets × ${ex.reps}</div>
+
+      <div class="photo-panel">
+        <img id="poseImg" src="${imgURL(ex.img,0)}" data-id="${ex.img}" data-pose="0" data-alts='${JSON.stringify(ex.imgAlt||[])}' onerror="imgFail(this)" alt="How to do ${name}">
+        <div class="pose-tag" id="poseTag">Start position</div>
+      </div>
+      <div class="photo-note">Photo flips between start and finish · public-domain images (free-exercise-db)</div>
+
+      <div class="diagram-wrap mini-diagram">${bodySVG(ex.m)}</div>
+      <div class="howto">${ex.how}</div>
+      <div class="set-pips">
+        ${Array.from({length:ex.sets},(_,s)=>`<div class="pip ${s+1<screen.set?'done':s+1===screen.set?'now':''}">${s+1}</div>`).join("")}
+      </div>
+
+      ${resting ? `
+        <div class="timer-block">
+          <div class="big-time resting" id="clock">${fmt(screen.t)}</div>
+          <div class="state-label">Rest — next: ${nextLabel()}</div>
+        </div>
+        <div class="rest-opts">
+          ${[30,45,60].map(s=>`<button class="rest-opt ${restLen===s?'sel':''}" onclick="setRest(${s})">${s}s</button>`).join("")}
+        </div>
+        <button class="mainbtn resting" onclick="skipRest()">Skip rest ▶</button>
+        <div class="subrow"><button class="subbtn" onclick="addRest()">+15 sec</button></div>
+      ` : working ? `
+        <div class="timer-block">
+          <div class="big-time working" id="clock">${fmt(screen.t)}</div>
+          <div class="state-label">Hold — set ${screen.set} of ${ex.sets}</div>
+        </div>
+        <button class="mainbtn" onclick="finishSet()">Done early ✓</button>
+      ` : `
+        <div class="timer-block">
+          <div class="big-time">${isTimed ? fmt(ex.timed) : ex.reps}</div>
+          <div class="state-label">${isTimed ? "Timed hold" : "Reps"} — set ${screen.set} of ${ex.sets}</div>
+        </div>
+        <div class="rest-opts">
+          ${[30,45,60].map(s=>`<button class="rest-opt ${restLen===s?'sel':''}" onclick="setRest(${s})">${s}s rest</button>`).join("")}
+        </div>
+        <button class="mainbtn" onclick="${isTimed?'startTimedSet()':'finishSet()'}">${isTimed?'Start hold ▶':'Set done ✓'}</button>
+        <div class="subrow">
+          <button class="subbtn" onclick="skipExercise()">Skip exercise</button>
+        </div>
+      `}
+    </div>
+  `;
+
+  /* flip between start/finish photos */
+  const img = document.getElementById("poseImg");
+  const tag = document.getElementById("poseTag");
+  if(img){
+    let pose = 0;
+    poseInt = setInterval(()=>{
+      if(img.style.display==="none") { clearInterval(poseInt); return; }
+      pose = 1 - pose;
+      img.dataset.pose = String(pose);
+      img.src = imgURL(img.dataset.id, pose);
+      if(tag) tag.textContent = pose===0 ? "Start position" : "Finish position";
+    }, 1500);
+  }
+
+  if(resting || working){
+    timerInt = setInterval(()=>{
+      screen.t--;
+      const c = document.getElementById("clock");
+      if(c) c.textContent = fmt(screen.t);
+      if(screen.t===3||screen.t===2||screen.t===1) beep(660,0.1);
+      if(screen.t<=0){
+        clearInterval(timerInt);
+        beep(1046,0.3);
+        if(resting) screen.mode="work";
+        else finishSetInternal();
+        render();
+      }
+    },1000);
+  }
+}
+
+function fmt(s){ s=Math.max(0,s); return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`; }
+
+function nextLabel(){
+  const d = WEEK[screen.dayIdx];
+  const ex = EXDB[d.ex[screen.exIdx]];
+  if(screen.set <= ex.sets) return `Set ${screen.set} of ${d.ex[screen.exIdx]}`;
+  return d.ex[screen.exIdx+1] || "Finish";
+}
+
+window.setRest = s => { restLen = s; render(); };
+window.skipRest = () => { clearInterval(timerInt); screen.mode="work"; render(); };
+window.addRest = () => { screen.t += 15; };
+
+window.startTimedSet = () => {
+  const ex = EXDB[WEEK[screen.dayIdx].ex[screen.exIdx]];
+  screen.mode = "timedwork"; screen.t = ex.timed;
+  beep(1046,0.2);
+  render();
+};
+
+window.finishSet = () => { clearInterval(timerInt); finishSetInternal(); render(); };
+
+function finishSetInternal(){
+  const d = WEEK[screen.dayIdx];
+  const ex = EXDB[d.ex[screen.exIdx]];
+  if(screen.set >= ex.sets){
+    if(screen.exIdx >= d.ex.length-1){ screen.mode="finished"; return; }
+    screen.exIdx++; screen.set=1;
+    screen.mode="rest"; screen.t=restLen+15;
+  } else {
+    screen.set++;
+    screen.mode="rest"; screen.t=restLen;
+  }
+}
+
+window.skipExercise = () => {
+  const d = WEEK[screen.dayIdx];
+  if(screen.exIdx >= d.ex.length-1){ screen.mode="finished"; }
+  else { screen.exIdx++; screen.set=1; screen.mode="work"; const ex=EXDB[d.ex[screen.exIdx]]; if(ex.timed) screen.t=ex.timed; }
+  render();
+};
+
+render();
+</script>
+</body>
+</html>
