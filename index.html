@@ -112,6 +112,26 @@
   }
   .startall:active{transform:scale(.98);}
 
+  .finisher-toggle{
+    width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px;
+    background:var(--steel); border:1px solid var(--line); border-radius:12px;
+    padding:14px; margin-top:14px; cursor:pointer; font-family:inherit; color:var(--chalk); text-align:left;
+  }
+  .finisher-toggle.on{border-color:var(--accent,#ffd60a);}
+  .ft-title{font-size:14px; font-weight:700;}
+  .ft-sub{font-size:12px; color:var(--dim); margin-top:2px;}
+  .ft-switch{width:42px; height:24px; border-radius:999px; background:var(--line); position:relative; flex-shrink:0; transition:background .2s;}
+  .ft-switch span{position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:var(--chalk); transition:transform .2s;}
+  .finisher-toggle.on .ft-switch{background:var(--accent,#ffd60a);}
+  .finisher-toggle.on .ft-switch span{transform:translateX(18px); background:#111;}
+  .finisher-preview{
+    background:var(--steel); border:1px dashed var(--line); border-radius:12px;
+    padding:10px 14px; margin-top:8px;
+  }
+  .fp-row{display:flex; justify-content:space-between; font-size:13px; color:#b9c4cf; padding:5px 0; border-bottom:1px solid #262f38;}
+  .fp-row:last-child{border-bottom:none;}
+  .fp-sr{color:var(--dim); font-variant-numeric:tabular-nums;}
+
   .player{text-align:center;}
   .progress-track{display:flex; gap:4px; margin-bottom:18px;}
   .progress-track span{flex:1; height:4px; border-radius:2px; background:var(--line);}
@@ -283,6 +303,9 @@ const EX_GEORGE = {
     how:"Dumbbells in front of your thighs. Hinge at the hips, push your bum back, flat back, lower to mid-shin, then drive hips forward to stand. Not a squat \u2014 a hinge."}
 };
 
+/* George's core finisher \u2014 same exercises as his Abs & Core day, offered as an optional add-on at the end of any other day */
+const CORE_FINISHER = ["Weighted sit-ups","Russian twists","Deadbug","Weighted plank"];
+
 /* ============ SOPHIE'S EXERCISES \u2014 Pilates-based, no weights ============ */
 const EX_SOPHIE = {
   "Glute bridge":       {m:["glutes","hams","abs"], sets:3, reps:"15",
@@ -438,17 +461,21 @@ if(!doneDays.sophie) doneDays.sophie = {};
 let timerInt = null;
 let poseInt = null;
 let paused = false;
+let dayFinisherOn = false;
 
 function P(){ return PROFILES[profile]; }
 function setAccent(){
   document.documentElement.style.setProperty("--accent", profile ? P().accent : "#ffd60a");
 }
 
-/* session = the workout in progress. Saved on every set change, cleared on finish/exit. */
+/* session = the workout in progress. Saved on every set change, cleared on finish/exit.
+   exList is stored too, since a session may include the optional core finisher appended
+   after the day's normal exercises. */
 function saveSession(){
   if(screen.name!=="player" || screen.mode==="finished") return;
   lsSet("gs_session", {
-    profile, dayIdx:screen.dayIdx, exIdx:screen.exIdx, set:screen.set, savedAt:Date.now()
+    profile, dayIdx:screen.dayIdx, exIdx:screen.exIdx, set:screen.set,
+    exList:screen.exList, savedAt:Date.now()
   });
 }
 function clearSession(){ lsRemove("gs_session"); }
@@ -456,7 +483,7 @@ function getSession(){
   const s = lsGet("gs_session", null);
   if(!s || !PROFILES[s.profile]) return null;
   const wk = PROFILES[s.profile].week;
-  if(!wk[s.dayIdx] || !wk[s.dayIdx].ex[s.exIdx]) return null;
+  if(!wk[s.dayIdx] || !s.exList || !s.exList[s.exIdx]) return null;
   return s;
 }
 
@@ -494,7 +521,7 @@ function resumeBannerHTML(){
   if(!s) return "";
   const pr = PROFILES[s.profile];
   const d = pr.week[s.dayIdx];
-  const exName = d.ex[s.exIdx];
+  const exName = s.exList[s.exIdx];
   return `
     <div class="resume-banner" style="border-color:${pr.accent}">
       <div class="rb-title" style="color:${pr.accent}">Unfinished workout</div>
@@ -510,8 +537,8 @@ window.resumeSession = () => {
   const s = getSession();
   if(!s) return;
   profile = s.profile;
-  screen = {name:"player", dayIdx:s.dayIdx, exIdx:s.exIdx, set:s.set, mode:"work", t:0};
-  const ex = P().ex[P().week[s.dayIdx].ex[s.exIdx]];
+  screen = {name:"player", dayIdx:s.dayIdx, exIdx:s.exIdx, set:s.set, mode:"work", t:0, exList:s.exList};
+  const ex = P().ex[s.exList[s.exIdx]];
   if(ex.timed) screen.t = ex.timed;
   render();
 };
@@ -582,7 +609,8 @@ function renderWeek(){
 }
 
 window.goPicker = () => { profile=null; screen={name:"picker"}; render(); };
-window.openDay = i => { screen={name:"day", dayIdx:i}; render(); };
+window.openDay = i => { screen={name:"day", dayIdx:i}; dayFinisherOn=false; render(); };
+window.toggleFinisher = () => { dayFinisherOn = !dayFinisherOn; renderDay(screen.dayIdx); };
 window.goWeek = () => { screen={name:"week"}; render(); };
 
 function musclesForDay(d){
@@ -594,6 +622,9 @@ function musclesForDay(d){
 function renderDay(i){
   const d = P().week[i];
   const muscles = musclesForDay(d);
+  const isAbsDay = JSON.stringify(d.ex) === JSON.stringify(CORE_FINISHER);
+  const canAddFinisher = profile==="george" && d.ex.length>0 && !isAbsDay;
+
   app.innerHTML = `
     <div class="topbar">
       <button class="backbtn" onclick="goWeek()">\u2190 Week</button>
@@ -606,20 +637,42 @@ function renderDay(i){
     <div class="diagram-wrap">${bodySVG(muscles)}</div>
     ${d.ex.map((e,j)=>{
       const x = P().ex[e];
-      return `<button class="ex-row" onclick="startPlayer(${i},${j})">
+      return `<button class="ex-row" onclick="startPlayer(${i},${j},${canAddFinisher && dayFinisherOn})">
         <img class="thumb" src="${imgURL(x.img,0)}" data-id="${x.img}" data-pose="0" data-alts='${JSON.stringify(x.imgAlt||[])}' onerror="imgFail(this)" alt="" loading="lazy">
         <div class="mid"><div class="nm">${e}</div><div class="muscles-tag">${x.m.join(" \u00b7 ")}</div></div>
         <div class="sr">${x.sets} \u00d7 ${x.reps}</div>
       </button>`;
     }).join("")}
-    <button class="startall" onclick="startPlayer(${i},0)">Start workout \u25b6</button>
+    ${canAddFinisher ? `
+      <button class="finisher-toggle ${dayFinisherOn?'on':''}" onclick="toggleFinisher()">
+        <div>
+          <div class="ft-title">+ Core finisher</div>
+          <div class="ft-sub">Tack the abs day onto the end of today</div>
+        </div>
+        <div class="ft-switch"><span></span></div>
+      </button>
+      ${dayFinisherOn ? `
+        <div class="finisher-preview">
+          ${CORE_FINISHER.map(e=>{
+            const x = P().ex[e];
+            return `<div class="fp-row"><span>${e}</span><span class="fp-sr">${x.sets}\u00d7${x.reps}</span></div>`;
+          }).join("")}
+        </div>
+      ` : ""}
+    ` : ""}
+    <button class="startall" onclick="startPlayer(${i},0,${canAddFinisher && dayFinisherOn})">Start workout \u25b6</button>
   `;
 }
 
 /* ============ PLAYER ============ */
-window.startPlayer = (dayIdx, exIdx) => {
-  screen = {name:"player", dayIdx, exIdx, set:1, mode:"work", t:0};
-  const ex = P().ex[P().week[dayIdx].ex[exIdx]];
+window.startPlayer = (dayIdx, exIdx, withFinisher) => {
+  const d = P().week[dayIdx];
+  let exList = d.ex.slice();
+  if(withFinisher){
+    exList = exList.concat(CORE_FINISHER.filter(name => !exList.includes(name)));
+  }
+  screen = {name:"player", dayIdx, exIdx, set:1, mode:"work", t:0, exList};
+  const ex = P().ex[exList[exIdx]];
   if(ex.timed) screen.t = ex.timed;
   saveSession();
   render();
@@ -627,7 +680,8 @@ window.startPlayer = (dayIdx, exIdx) => {
 
 function renderPlayer(){
   const d = P().week[screen.dayIdx];
-  const name = d.ex[screen.exIdx];
+  const exList = screen.exList;
+  const name = exList[screen.exIdx];
   const ex = P().ex[name];
   const isTimed = !!ex.timed;
 
@@ -659,10 +713,10 @@ function renderPlayer(){
     </div>
     <div class="player">
       <div class="progress-track">
-        ${d.ex.map((_,j)=>`<span class="${j<screen.exIdx?'done':j===screen.exIdx?'now':''}"></span>`).join("")}
+        ${exList.map((_,j)=>`<span class="${j<screen.exIdx?'done':j===screen.exIdx?'now':''}"></span>`).join("")}
       </div>
       <h1 class="ex-title display">${name}</h1>
-      <div class="ex-sub">Exercise ${screen.exIdx+1} of ${d.ex.length} \u00b7 ${ex.sets} sets \u00d7 ${ex.reps}</div>
+      <div class="ex-sub">Exercise ${screen.exIdx+1} of ${exList.length} \u00b7 ${ex.sets} sets \u00d7 ${ex.reps}</div>
 
       <div class="photo-panel">
         <img id="poseImg" src="${imgURL(ex.img,0)}" data-id="${ex.img}" data-pose="0" data-alts='${JSON.stringify(ex.imgAlt||[])}' onerror="imgFail(this)" alt="How to do ${name}">
@@ -762,10 +816,10 @@ window.exitPlayer = () => {
 function fmt(s){ s=Math.max(0,s); return `${Math.floor(s/60)}:${String(s%60).padStart(2,"0")}`; }
 
 function nextLabel(){
-  const d = P().week[screen.dayIdx];
-  const ex = P().ex[d.ex[screen.exIdx]];
-  if(screen.set <= ex.sets) return `Set ${screen.set} of ${d.ex[screen.exIdx]}`;
-  return d.ex[screen.exIdx+1] || "Finish";
+  const exList = screen.exList;
+  const ex = P().ex[exList[screen.exIdx]];
+  if(screen.set <= ex.sets) return `Set ${screen.set} of ${exList[screen.exIdx]}`;
+  return exList[screen.exIdx+1] || "Finish";
 }
 
 window.setRest = s => { restLen = s; lsSet("gs_restLen", restLen); render(); };
@@ -773,7 +827,7 @@ window.skipRest = () => { clearInterval(timerInt); screen.mode="work"; render();
 window.addRest = () => { screen.t += 15; };
 
 window.startTimedSet = () => {
-  const ex = P().ex[P().week[screen.dayIdx].ex[screen.exIdx]];
+  const ex = P().ex[screen.exList[screen.exIdx]];
   screen.mode = "timedwork"; screen.t = ex.timed;
   beep(1046,0.2);
   render();
@@ -782,10 +836,10 @@ window.startTimedSet = () => {
 window.finishSet = () => { clearInterval(timerInt); finishSetInternal(); render(); };
 
 function finishSetInternal(){
-  const d = P().week[screen.dayIdx];
-  const ex = P().ex[d.ex[screen.exIdx]];
+  const exList = screen.exList;
+  const ex = P().ex[exList[screen.exIdx]];
   if(screen.set >= ex.sets){
-    if(screen.exIdx >= d.ex.length-1){ screen.mode="finished"; return; }
+    if(screen.exIdx >= exList.length-1){ screen.mode="finished"; return; }
     screen.exIdx++; screen.set=1;
     screen.mode="rest"; screen.t=restLen+15;
   } else {
@@ -796,9 +850,9 @@ function finishSetInternal(){
 }
 
 window.skipExercise = () => {
-  const d = P().week[screen.dayIdx];
-  if(screen.exIdx >= d.ex.length-1){ screen.mode="finished"; }
-  else { screen.exIdx++; screen.set=1; screen.mode="work"; const ex=P().ex[d.ex[screen.exIdx]]; if(ex.timed) screen.t=ex.timed; saveSession(); }
+  const exList = screen.exList;
+  if(screen.exIdx >= exList.length-1){ screen.mode="finished"; }
+  else { screen.exIdx++; screen.set=1; screen.mode="work"; const ex=P().ex[exList[screen.exIdx]]; if(ex.timed) screen.t=ex.timed; saveSession(); }
   render();
 };
 
