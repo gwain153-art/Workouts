@@ -5,273 +5,210 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>George & Sophie's Workouts</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#04070c;
-    --panel:rgba(10,18,28,.82);
-    --panel2:rgba(14,24,36,.9);
-    --line:rgba(60,180,220,.22);
-    --chalk:#dceef7;
-    --dim:#5f7d90;
+    --bg:#101214;
+    --card:#191c20;
+    --line:#262b31;
+    --text:#f2f4f6;
+    --dim:#96a0aa;
     --accent:#22d3ee;
-    --accent-dim:rgba(34,211,238,.14);
-    --rest:#3ec6ff;
+    --rest:#38bdf8;
     --good:#4ade80;
-    --chest:#ff6b5e; --back:#5e9bff; --arms:#c98bff; --abs:#ffd60a; --legs:#5effa8; --shoulders:#ff9d5e;
+    --chest:#f87171; --back:#60a5fa; --arms:#c084fc; --abs:#facc15; --legs:#34d399; --shoulders:#fb923c;
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   html,body{margin:0;}
   body{
-    background:
-      radial-gradient(1200px 600px at 50% -10%, rgba(34,211,238,.10), transparent 60%),
-      radial-gradient(800px 500px at 90% 110%, rgba(34,211,238,.06), transparent 60%),
-      var(--bg);
-    color:var(--chalk);
-    font-family:'Rajdhani',-apple-system,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',-apple-system,system-ui,sans-serif;
     min-height:100vh;
-    position:relative;
   }
-  body::before{
-    content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
-    background-image:
-      linear-gradient(rgba(34,211,238,.035) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(34,211,238,.035) 1px, transparent 1px);
-    background-size:44px 44px;
-  }
-  #app{max-width:520px; margin:0 auto; padding:18px 16px 90px; position:relative; z-index:1;}
+  #app{max-width:520px; margin:0 auto; padding:18px 16px 90px;}
 
-  .display{font-family:'Orbitron',sans-serif; font-weight:900; text-transform:uppercase; letter-spacing:.08em;}
-  .mono-label{font-family:'Orbitron',sans-serif; font-weight:500; font-size:10px; letter-spacing:.28em; text-transform:uppercase; color:var(--dim);}
+  h1,h2{font-weight:800; letter-spacing:-.02em;}
+  .eyebrow{font-size:11px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--dim);}
 
-  /* ---- HUD panel base ---- */
-  .hud{
-    background:var(--panel);
-    border:1px solid var(--line);
-    position:relative;
-    clip-path:polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
-    backdrop-filter:blur(6px);
-  }
-  .hud::after{
-    content:""; position:absolute; inset:0; pointer-events:none;
-    background:linear-gradient(180deg, rgba(34,211,238,.05), transparent 30%);
-  }
-  .glow{box-shadow:0 0 18px rgba(34,211,238,.10), inset 0 0 24px rgba(34,211,238,.04);}
+  button{font-family:inherit;}
+  button:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
 
   /* ---- topbar ---- */
-  .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; gap:10px;}
-  .brand{font-family:'Orbitron',sans-serif; font-weight:700; font-size:13px; letter-spacing:.18em; text-transform:uppercase;}
-  .brand em{color:var(--accent); font-style:normal; text-shadow:0 0 12px var(--accent);}
+  .topbar{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
+  .brand{font-weight:800; font-size:14px; letter-spacing:-.01em; color:var(--dim);}
+  .brand b{color:var(--text);}
   .backbtn{
-    background:none; border:1px solid var(--line); color:var(--chalk);
-    padding:8px 14px; font-size:12px; font-weight:600; cursor:pointer; font-family:'Orbitron',sans-serif;
-    letter-spacing:.1em; text-transform:uppercase;
-    clip-path:polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+    background:none; border:1px solid var(--line); color:var(--text);
+    border-radius:10px; padding:9px 14px; font-size:13px; font-weight:600; cursor:pointer;
   }
-  .backbtn:active{background:var(--accent-dim);}
-  .voicebtn{
-    background:none; border:1px solid var(--line); color:var(--dim);
-    padding:8px 12px; font-size:12px; cursor:pointer; font-family:'Orbitron',sans-serif; letter-spacing:.08em;
-    clip-path:polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
-  }
-  .voicebtn.on{color:var(--accent); border-color:var(--accent); text-shadow:0 0 10px var(--accent); box-shadow:0 0 12px rgba(34,211,238,.2);}
-
-  /* ---- coach line ---- */
-  .coach-line{
-    display:flex; align-items:center; gap:10px;
-    padding:10px 14px; margin-bottom:16px;
-    background:var(--panel2); border:1px solid var(--line);
-    clip-path:polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-  }
-  .coach-dot{
-    width:9px; height:9px; border-radius:50%; background:var(--accent); flex-shrink:0;
-    box-shadow:0 0 10px var(--accent); animation:pulse 2.2s infinite;
-  }
-  @keyframes pulse{ 0%,100%{opacity:1;} 50%{opacity:.35;} }
-  .coach-text{font-size:14px; font-weight:600; letter-spacing:.02em; color:var(--chalk); min-height:18px;}
-  .coach-text .c-tag{color:var(--accent); font-family:'Orbitron',sans-serif; font-size:10px; letter-spacing:.2em; margin-right:8px;}
+  .backbtn:active{background:var(--card);}
 
   /* ---- profile picker ---- */
-  .picker{min-height:72vh; display:flex; flex-direction:column; justify-content:center; text-align:center;}
-  .picker h1{font-size:26px; margin:0 0 4px; line-height:1.2; text-shadow:0 0 20px rgba(34,211,238,.35);}
-  .picker .sysline{margin-bottom:34px;}
+  .picker{min-height:70vh; display:flex; flex-direction:column; justify-content:center;}
+  .picker h1{font-size:30px; line-height:1.1; margin:0 0 6px;}
+  .picker .sub{color:var(--dim); font-size:15px; margin:0 0 28px;}
   .profile-btn{
-    width:100%; padding:24px 20px; margin-bottom:16px; cursor:pointer;
-    border:1px solid var(--line); background:var(--panel); color:var(--chalk);
-    font-family:inherit; text-align:left; display:flex; align-items:center; gap:16px;
-    clip-path:polygon(16px 0, 100% 0, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%, 0 16px);
-    transition:box-shadow .2s;
+    width:100%; padding:20px; margin-bottom:12px; cursor:pointer; text-align:left;
+    border:1px solid var(--line); border-radius:16px; background:var(--card); color:var(--text);
+    display:flex; align-items:center; gap:16px;
   }
   .profile-btn:active{transform:scale(.98);}
   .profile-btn .avatar{
-    width:54px; height:54px; display:flex; align-items:center; justify-content:center;
-    font-family:'Orbitron',sans-serif; font-size:20px; font-weight:900; color:#04070c; flex-shrink:0;
-    clip-path:polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    width:52px; height:52px; border-radius:14px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:20px; font-weight:800; color:#101214;
   }
-  .profile-btn .pname{font-family:'Orbitron',sans-serif; font-size:17px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;}
-  .profile-btn .pdesc{font-size:13px; color:var(--dim); margin-top:4px; letter-spacing:.04em;}
+  .profile-btn .pname{font-size:17px; font-weight:800; letter-spacing:-.01em;}
+  .profile-btn .pdesc{font-size:13px; color:var(--dim); margin-top:3px; line-height:1.4;}
 
   /* ---- resume banner ---- */
-  .resume-banner{padding:16px; margin-bottom:18px; text-align:left;}
-  .rb-detail{font-size:15px; color:var(--chalk); margin:8px 0 14px; line-height:1.45; font-weight:600;}
-  .rb-row{display:flex; gap:10px;}
-  .rb-btn{
-    flex:1; padding:13px; border:none; cursor:pointer;
-    font-family:'Orbitron',sans-serif; font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:.12em;
-    clip-path:polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+  .resume-banner{
+    background:var(--card); border:1px solid var(--accent); border-radius:16px;
+    padding:16px; margin-bottom:16px;
   }
-  .rb-btn.go{background:var(--accent); color:#04070c;}
+  .rb-detail{font-size:15px; font-weight:600; margin:8px 0 14px; line-height:1.45;}
+  .rb-row{display:flex; gap:10px;}
+  .rb-btn{flex:1; padding:13px; border:none; border-radius:12px; cursor:pointer; font-weight:800; font-size:14px;}
+  .rb-btn.go{background:var(--accent); color:#101214;}
   .rb-btn.discard{background:none; border:1px solid var(--line); color:var(--dim);}
 
   /* ---- week ---- */
-  .week-hero{margin:4px 0 20px;}
-  .week-hero h1{font-size:24px; margin:0 0 4px; text-shadow:0 0 16px rgba(34,211,238,.3);}
-  .week-hero p{color:var(--dim); font-size:14px; margin:0; letter-spacing:.05em;}
+  .week-hero{margin:4px 0 18px;}
+  .week-hero h1{font-size:26px; margin:0 0 4px;}
+  .week-hero p{color:var(--dim); font-size:14px; margin:0; line-height:1.5;}
+  .rules-card{
+    width:100%; text-align:left; cursor:pointer;
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:14px 16px; margin-bottom:14px; color:var(--text);
+    display:flex; justify-content:space-between; align-items:center; gap:12px;
+  }
+  .rules-card .t{font-size:14px; font-weight:800;}
+  .rules-card .s{font-size:12px; color:var(--dim); margin-top:2px;}
+  .rules-card .arrow{color:var(--accent); font-weight:800;}
   .daycard{
-    width:100%; text-align:left; background:var(--panel); border:1px solid var(--line);
+    width:100%; text-align:left; background:var(--card); border:1px solid var(--line); border-radius:14px;
     padding:15px 16px; margin-bottom:10px; cursor:pointer;
-    display:flex; align-items:center; gap:14px; color:var(--chalk); font-family:inherit;
-    clip-path:polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+    display:flex; align-items:center; gap:14px; color:var(--text);
   }
   .daycard:active{transform:scale(.99);}
-  .daycard .dot{width:10px; height:10px; flex-shrink:0; box-shadow:0 0 8px currentColor;}
+  .daycard .dot{width:10px; height:10px; border-radius:50%; flex-shrink:0;}
   .daycard .info{flex:1;}
-  .daycard .dayname{font-family:'Orbitron',sans-serif; font-weight:700; font-size:13px; letter-spacing:.12em; text-transform:uppercase;}
-  .daycard .focus{color:var(--dim); font-size:13px; margin-top:3px; letter-spacing:.03em;}
-  .daycard .count{font-size:11px; color:var(--dim); font-variant-numeric:tabular-nums; font-family:'Orbitron',sans-serif;}
+  .daycard .dayname{font-weight:800; font-size:14px;}
+  .daycard .focus{color:var(--dim); font-size:13px; margin-top:2px;}
+  .daycard .count{font-size:12px; color:var(--dim); font-variant-numeric:tabular-nums; font-weight:600;}
   .daycard.rest-day{opacity:.45; cursor:default;}
-  .done-badge{color:var(--good); font-size:11px; font-weight:700; text-shadow:0 0 8px var(--good); margin-left:6px;}
+  .done-badge{color:var(--good); font-size:12px; font-weight:800; margin-left:6px;}
+
+  /* ---- growth rules ---- */
+  .rules-head h1{font-size:26px; margin:0 0 4px;}
+  .rules-head p{color:var(--dim); font-size:14px; margin:0 0 18px; line-height:1.5;}
+  .rule{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:16px; margin-bottom:12px;
+  }
+  .rule h2{font-size:15px; margin:0 0 8px; color:var(--accent);}
+  .rule p{font-size:14px; color:#c6cdd4; margin:0; line-height:1.6;}
+  .rule ol{font-size:14px; color:#c6cdd4; margin:8px 0 0; padding-left:20px; line-height:1.7;}
 
   /* ---- day view ---- */
-  .day-head h1{font-size:24px; margin:0 0 4px; text-shadow:0 0 16px rgba(34,211,238,.3);}
-  .day-head .focus-line{color:var(--dim); font-size:14px; margin-bottom:14px; letter-spacing:.04em;}
+  .day-head h1{font-size:26px; margin:0 0 4px;}
+  .day-head .focus-line{color:var(--dim); font-size:14px; margin-bottom:14px; line-height:1.5;}
   .diagram-wrap{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
     padding:14px; display:flex; justify-content:center; gap:10px; margin-bottom:14px;
   }
   .diagram-wrap svg{width:44%; max-width:170px; height:auto;}
-  .muscle{fill:#0d1622; stroke:rgba(60,180,220,.25); stroke-width:1; transition:fill .3s;}
-  .muscle.hot{filter:drop-shadow(0 0 6px currentColor);}
-  .bodyline{fill:none; stroke:rgba(60,180,220,.4); stroke-width:2;}
-  .figure-label{fill:var(--dim); font-size:9px; text-anchor:middle; text-transform:uppercase; letter-spacing:2px; font-family:'Orbitron',sans-serif;}
+  .muscle{fill:#22262c; stroke:#31373f; stroke-width:1; transition:fill .3s;}
+  .bodyline{fill:none; stroke:#3a414a; stroke-width:2;}
+  .figure-label{fill:var(--dim); font-size:9px; text-anchor:middle; text-transform:uppercase; letter-spacing:2px; font-family:'Inter',sans-serif; font-weight:600;}
 
   .ex-row{
-    width:100%; text-align:left; background:var(--panel); border:1px solid var(--line);
-    padding:10px 14px 10px 10px; margin-bottom:8px; cursor:pointer; color:var(--chalk);
-    display:flex; justify-content:space-between; align-items:center; gap:10px; font-family:inherit;
-    clip-path:polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    width:100%; text-align:left; background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:10px 14px 10px 10px; margin-bottom:8px; cursor:pointer; color:var(--text);
+    display:flex; justify-content:space-between; align-items:center; gap:10px;
   }
-  .ex-row .thumb{width:54px; height:54px; background:#fff; object-fit:cover; flex-shrink:0;
-    clip-path:polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);}
+  .ex-row .thumb{width:52px; height:52px; border-radius:10px; background:#fff; object-fit:cover; flex-shrink:0;}
   .ex-row .mid{flex:1;}
-  .ex-row .nm{font-weight:700; font-size:14px; letter-spacing:.03em;}
-  .ex-row .muscles-tag{font-size:11px; color:var(--dim); margin-top:2px; letter-spacing:.06em; text-transform:uppercase;}
-  .ex-row .sr{color:var(--dim); font-size:12px; font-variant-numeric:tabular-nums; font-family:'Orbitron',sans-serif;}
+  .ex-row .nm{font-weight:800; font-size:14px; letter-spacing:-.01em;}
+  .ex-row .muscles-tag{font-size:11px; color:var(--dim); margin-top:2px; letter-spacing:.04em; text-transform:uppercase; font-weight:600;}
+  .ex-row .sr{color:var(--dim); font-size:12px; font-weight:600; font-variant-numeric:tabular-nums; text-align:right;}
 
   .startall{
-    width:100%; padding:17px; margin-top:12px; border:none; cursor:pointer;
-    background:var(--accent); color:#04070c; font-size:14px;
-    font-family:'Orbitron',sans-serif; font-weight:900; text-transform:uppercase; letter-spacing:.14em;
-    clip-path:polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
-    box-shadow:0 0 24px rgba(34,211,238,.35);
+    width:100%; padding:17px; margin-top:12px; border:none; border-radius:14px; cursor:pointer;
+    background:var(--accent); color:#101214; font-size:15px; font-weight:800;
   }
   .startall:active{transform:scale(.98);}
-
-  .finisher-toggle{
-    width:100%; display:flex; align-items:center; justify-content:space-between; gap:10px;
-    background:var(--panel); border:1px solid var(--line);
-    padding:14px; margin-top:14px; cursor:pointer; font-family:inherit; color:var(--chalk); text-align:left;
-    clip-path:polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-  }
-  .finisher-toggle.on{border-color:var(--accent); box-shadow:0 0 14px rgba(34,211,238,.18);}
-  .ft-title{font-family:'Orbitron',sans-serif; font-size:12px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;}
-  .ft-sub{font-size:12px; color:var(--dim); margin-top:3px;}
-  .ft-switch{width:42px; height:24px; border-radius:999px; background:rgba(60,180,220,.15); position:relative; flex-shrink:0; transition:background .2s;}
-  .ft-switch span{position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:var(--dim); transition:transform .2s, background .2s;}
-  .finisher-toggle.on .ft-switch{background:var(--accent);}
-  .finisher-toggle.on .ft-switch span{transform:translateX(18px); background:#04070c;}
-  .finisher-preview{border:1px dashed var(--line); padding:10px 14px; margin-top:8px; background:var(--panel);}
-  .fp-row{display:flex; justify-content:space-between; font-size:13px; color:#a7c2d1; padding:5px 0; border-bottom:1px solid rgba(60,180,220,.12);}
-  .fp-row:last-child{border-bottom:none;}
-  .fp-sr{color:var(--dim); font-variant-numeric:tabular-nums; font-family:'Orbitron',sans-serif; font-size:11px;}
 
   /* ---- player ---- */
   .player{text-align:center;}
   .progress-track{display:flex; gap:4px; margin-bottom:16px;}
-  .progress-track span{flex:1; height:3px; background:rgba(60,180,220,.15);}
-  .progress-track span.done{background:var(--accent); box-shadow:0 0 6px var(--accent);}
-  .progress-track span.now{background:var(--chalk);}
-  .ex-title{font-size:21px; margin:2px 0 4px; text-shadow:0 0 14px rgba(34,211,238,.35);}
-  .ex-sub{color:var(--dim); font-size:12px; margin-bottom:12px; font-family:'Orbitron',sans-serif; letter-spacing:.1em; text-transform:uppercase;}
+  .progress-track span{flex:1; height:4px; border-radius:2px; background:var(--line);}
+  .progress-track span.done{background:var(--accent);}
+  .progress-track span.now{background:var(--text);}
+  .ex-title{font-size:23px; margin:2px 0 4px;}
+  .ex-sub{color:var(--dim); font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase; margin-bottom:12px;}
 
-  .photo-panel{background:#fff; overflow:hidden; margin-bottom:12px; position:relative;
-    clip-path:polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
-    border:1px solid var(--line);}
+  .photo-panel{background:#fff; border-radius:16px; overflow:hidden; margin-bottom:12px; position:relative; border:1px solid var(--line);}
   .photo-panel img{width:100%; display:block; max-height:240px; object-fit:contain; background:#fff;}
   .photo-panel .pose-tag{
-    position:absolute; bottom:10px; left:10px; background:rgba(4,7,12,.88);
-    color:var(--accent); font-size:10px; font-weight:700; letter-spacing:.2em;
-    text-transform:uppercase; padding:6px 10px; font-family:'Orbitron',sans-serif;
-    clip-path:polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+    position:absolute; bottom:10px; left:10px; background:rgba(16,18,20,.9);
+    color:var(--text); font-size:11px; font-weight:600; letter-spacing:.08em;
+    text-transform:uppercase; padding:6px 10px; border-radius:8px;
   }
-  .photo-note{font-size:10px; color:var(--dim); margin:-4px 0 12px; letter-spacing:.06em;}
+  .photo-note{font-size:11px; color:var(--dim); margin:-4px 0 12px;}
 
   .mini-diagram{margin-bottom:12px;}
   .mini-diagram svg{width:34%; max-width:126px;}
 
   .howto{
-    padding:12px 14px; font-size:14px; color:#a7c2d1; text-align:left; line-height:1.55; margin-bottom:14px;
-    font-weight:500;
+    background:var(--card); border:1px solid var(--line); border-radius:14px;
+    padding:13px 15px; font-size:14px; color:#c6cdd4; text-align:left; line-height:1.6; margin-bottom:14px;
+  }
+  .load-chip{
+    display:inline-block; background:var(--bg); border:1px solid var(--line); border-radius:8px;
+    padding:3px 9px; font-size:12px; font-weight:600; color:var(--text); margin-bottom:8px;
   }
   .set-pips{display:flex; justify-content:center; gap:8px; margin-bottom:14px;}
-  .pip{width:34px; height:34px; border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
-    font-size:12px; font-weight:700; color:var(--dim); font-variant-numeric:tabular-nums; font-family:'Orbitron',sans-serif;
-    clip-path:polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);}
-  .pip.done{background:var(--accent); border-color:var(--accent); color:#04070c; box-shadow:0 0 10px rgba(34,211,238,.4);}
-  .pip.now{border-color:var(--chalk); color:var(--chalk);}
+  .pip{width:34px; height:34px; border-radius:50%; border:1px solid var(--line); display:flex; align-items:center; justify-content:center;
+    font-size:12px; font-weight:800; color:var(--dim); font-variant-numeric:tabular-nums;}
+  .pip.done{background:var(--accent); border-color:var(--accent); color:#101214;}
+  .pip.now{border-color:var(--text); color:var(--text);}
 
   .timer-block{margin-bottom:14px;}
-  .big-time{
-    font-family:'Orbitron',sans-serif; font-size:58px; font-variant-numeric:tabular-nums; line-height:1; font-weight:700;
-    text-shadow:0 0 24px rgba(34,211,238,.5);
-  }
-  .big-time.resting{color:var(--rest); text-shadow:0 0 24px rgba(62,198,255,.5);}
+  .big-time{font-size:68px; font-weight:800; font-variant-numeric:tabular-nums; line-height:1; letter-spacing:-.02em;}
+  .big-time.resting{color:var(--rest);}
   .big-time.working{color:var(--accent);}
   .big-time.paused{opacity:.35;}
-  .state-label{font-size:10px; text-transform:uppercase; letter-spacing:.3em; color:var(--dim); margin-top:8px; font-family:'Orbitron',sans-serif;}
+  .state-label{font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.14em; color:var(--dim); margin-top:8px;}
 
   .mainbtn{
-    width:100%; padding:17px; border:none; cursor:pointer;
-    background:var(--accent); color:#04070c; font-size:14px;
-    font-family:'Orbitron',sans-serif; font-weight:900; text-transform:uppercase; letter-spacing:.14em;
-    clip-path:polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
-    box-shadow:0 0 24px rgba(34,211,238,.3);
+    width:100%; padding:17px; border:none; border-radius:14px; cursor:pointer;
+    background:var(--accent); color:#101214; font-size:15px; font-weight:800;
   }
-  .mainbtn.resting{background:var(--rest); box-shadow:0 0 24px rgba(62,198,255,.3);}
+  .mainbtn.resting{background:var(--rest);}
   .mainbtn:active{transform:scale(.98);}
   .subrow{display:flex; gap:8px; margin-top:10px;}
   .subbtn{
-    flex:1; padding:12px; background:none; border:1px solid var(--line); color:var(--dim);
-    font-size:11px; font-weight:700; cursor:pointer; font-family:'Orbitron',sans-serif; letter-spacing:.1em; text-transform:uppercase;
-    clip-path:polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+    flex:1; padding:12px; background:none; border:1px solid var(--line); border-radius:12px; color:var(--dim);
+    font-size:13px; font-weight:600; cursor:pointer;
   }
-  .subbtn.paused{border-color:var(--accent); color:var(--accent); text-shadow:0 0 8px var(--accent);}
+  .subbtn.paused{border-color:var(--accent); color:var(--accent);}
 
-  .rest-opts{display:flex; gap:8px; justify-content:center; margin:0 0 16px;}
+  .rest-opts{display:flex; gap:8px; justify-content:center; margin:0 0 8px; flex-wrap:wrap;}
   .rest-opt{
-    padding:8px 16px; border:1px solid var(--line); background:none;
-    color:var(--dim); font-size:12px; font-weight:700; cursor:pointer; font-family:'Orbitron',sans-serif;
-    font-variant-numeric:tabular-nums;
-    clip-path:polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+    padding:9px 15px; border:1px solid var(--line); border-radius:10px; background:none;
+    color:var(--dim); font-size:13px; font-weight:600; cursor:pointer; font-variant-numeric:tabular-nums;
   }
-  .rest-opt.sel{background:var(--rest); border-color:var(--rest); color:#04070c; box-shadow:0 0 12px rgba(62,198,255,.35);}
+  .rest-opt.sel{background:var(--rest); border-color:var(--rest); color:#101214;}
+  .rest-note{font-size:11px; color:var(--dim); margin:0 0 14px;}
 
-  .finished-card{padding:30px 20px; margin-top:26px; border-color:rgba(74,222,128,.4) !important;}
-  .finished-card h2{margin:0 0 6px; font-size:22px; color:var(--good); text-shadow:0 0 16px rgba(74,222,128,.5);}
+  .finished-card{
+    background:var(--card); border:1px solid var(--good); border-radius:18px;
+    padding:30px 20px; margin-top:26px;
+  }
+  .finished-card h2{margin:0 0 6px; font-size:22px; color:var(--good);}
   .finished-card p{color:var(--dim); font-size:14px; margin:0 0 18px; line-height:1.5;}
-
-  .legend{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; margin:6px 0 16px;}
-  .legend span{font-size:10px; color:var(--dim); display:flex; align-items:center; gap:5px; letter-spacing:.08em; text-transform:uppercase;}
-  .legend i{width:8px; height:8px; display:inline-block; box-shadow:0 0 6px currentColor;}
 
   @media (prefers-reduced-motion: reduce){
     *{transition:none !important; animation:none !important;}
@@ -289,45 +226,18 @@ function lsGet(key, fallback){
 function lsSet(key, value){ try{ localStorage.setItem(key, JSON.stringify(value)); }catch(e){} }
 function lsRemove(key){ try{ localStorage.removeItem(key); }catch(e){} }
 
-/* ============ VOICE COACH (browser SpeechSynthesis \u2014 no AI needed) ============ */
-let voiceOn = lsGet("gs_voiceOn", true);
-let coachVoice = null;
-function pickVoice(){
-  try{
-    const vs = speechSynthesis.getVoices();
-    coachVoice =
-      vs.find(v=>/en-GB/i.test(v.lang) && /female|Serena|Kate|Stephanie/i.test(v.name)) ||
-      vs.find(v=>/en-GB/i.test(v.lang)) ||
-      vs.find(v=>/^en/i.test(v.lang)) || null;
-  }catch(e){}
+/* ============ ONE-TIME MIGRATION to v7 ============
+   George's program changed completely, so his day history and any
+   half-finished session get reset. Sophie's history is kept. */
+if(!lsGet("gs_v7", false)){
+  lsRemove("gs_session");
+  const dd = lsGet("gs_doneDays", {george:{}, sophie:{}});
+  dd.george = {};
+  lsSet("gs_doneDays", dd);
+  lsRemove("gs_voiceOn");
+  lsRemove("gs_restLen");
+  lsSet("gs_v7", true);
 }
-if(window.speechSynthesis){
-  pickVoice();
-  speechSynthesis.onvoiceschanged = pickVoice;
-}
-function say(text){
-  setCoachLine(text);
-  if(!voiceOn || !window.speechSynthesis) return;
-  try{
-    speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    if(coachVoice) u.voice = coachVoice;
-    u.rate = 1.02; u.pitch = 1;
-    speechSynthesis.speak(u);
-  }catch(e){}
-}
-function setCoachLine(text){
-  const el = document.getElementById("coachText");
-  if(el) el.innerHTML = '<span class="c-tag">COACH</span>' + text;
-}
-window.toggleVoice = () => {
-  voiceOn = !voiceOn;
-  lsSet("gs_voiceOn", voiceOn);
-  if(!voiceOn){ try{ speechSynthesis.cancel(); }catch(e){} }
-  const b = document.getElementById("voiceBtn");
-  if(b){ b.classList.toggle("on", voiceOn); b.textContent = voiceOn ? "\ud83d\udd0a" : "\ud83d\udd07"; }
-  if(voiceOn) say("Voice coach online.");
-};
 
 /* ============ PHOTOS: public-domain images from free-exercise-db ============ */
 const IMG_BASE = "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/";
@@ -346,68 +256,125 @@ window.imgFail = function(imgEl){
   }
 };
 
-/* ============ GEORGE'S EXERCISES ============ */
+/* ============ GEORGE'S EXERCISES — muscle growth, weights capped at 2x10kg ============ */
 const EX_GEORGE = {
-  "Bench press":        {m:["chest","triceps","shoulders"], sets:4, reps:"8-10",
+  /* --- push --- */
+  "Bench press": {m:["chest","triceps","shoulders"], sets:4, reps:"12-15", rest:60, load:"2\u00d710kg",
     img:"Dumbbell_Bench_Press", imgAlt:["Alternating_Floor_Press"],
-    how:"Lie flat, dumbbells at chest level. Press up until arms are straight, lower slowly for 2-3 seconds. Keep your feet planted and don't let the dumbbells drift toward your head."},
-  "Incline press":      {m:["upperchest","shoulders","triceps"], sets:3, reps:"10-12",
+    how:"Flat on the floor or bench. Press up, then lower for a slow 3 count \u2014 the lowering is where growth happens. LAST SET IS A DROP SET: go to failure with the 10s, grab the 5s immediately, rep to failure again."},
+  "Incline press": {m:["upperchest","shoulders","triceps"], sets:3, reps:"12-15", rest:60, load:"2\u00d710kg",
     img:"Incline_Dumbbell_Press", imgAlt:["Dumbbell_Bench_Press"],
-    how:"Set an incline around 30-45\u00b0 (prop the bench or use stairs). Press up and slightly back. Slow on the way down \u2014 that's where the growth is."},
-  "Flyes":              {m:["chest"], sets:3, reps:"12-15",
+    how:"Set an incline around 30-45\u00b0 (prop the bench or use stairs). Press up and slightly back. 3-second lowering, no bouncing at the bottom."},
+  "Flyes": {m:["chest"], sets:3, reps:"15-20", rest:45, load:"2\u00d75kg",
     img:"Dumbbell_Flyes", imgAlt:["Around_The_Worlds"],
-    how:"Slight bend in the elbows, lower the dumbbells wide until you feel a stretch across your chest, then squeeze them back together like you're hugging a barrel."},
-  "Overhead tricep extension": {m:["triceps"], sets:3, reps:"12",
-    img:"Standing_Dumbbell_Triceps_Extension", imgAlt:["Seated_Triceps_Press"],
-    how:"Hold one dumbbell with both hands overhead. Lower it behind your head by bending only at the elbows, then press back up. Keep elbows pointing forward, not flaring out."},
-  "Tricep kickbacks":   {m:["triceps"], sets:3, reps:"12",
-    img:"Tricep_Dumbbell_Kickback", imgAlt:["Standing_Bent-Over_One-Arm_Dumbbell_Triceps_Extension"],
-    how:"Hinge forward, upper arm locked parallel to the floor. Extend the dumbbell back until your arm is straight, squeeze for a second, return slowly."},
-  "Bent-over rows":     {m:["lats","midback","biceps"], sets:4, reps:"8-10",
-    img:"Bent_Over_Two-Dumbbell_Row", imgAlt:["Bent_Over_Two-Dumbbell_Row_With_Palms_In"],
-    how:"Hinge at the hips, flat back, dumbbells hanging. Pull them to your lower ribs, elbows tucked. Squeeze your shoulder blades together at the top."},
-  "Single-arm rows":    {m:["lats","midback","biceps"], sets:3, reps:"10-12 / side",
-    img:"One-Arm_Dumbbell_Row", imgAlt:["Alternating_Kettlebell_Row"],
-    how:"One hand braced on a bench or your knee. Row the dumbbell to your hip, not your chest. Full stretch at the bottom, hard squeeze at the top. Do both sides per set."},
-  "Pullovers":          {m:["lats","chest"], sets:3, reps:"12",
-    img:"Straight-Arm_Dumbbell_Pullover", imgAlt:["Bent-Arm_Dumbbell_Pullover"],
-    how:"Lie on your back, one dumbbell held over your chest with both hands. Lower it in an arc behind your head until you feel a big stretch, then pull it back over."},
-  "Bicep curls":        {m:["biceps"], sets:3, reps:"12",
-    img:"Dumbbell_Bicep_Curl", imgAlt:["Dumbbell_Alternate_Bicep_Curl","Standing_Dumbbell_Curl"],
-    how:"Elbows pinned to your sides. Curl up without swinging, lower for a slow 2-3 count. If you're rocking your body, the weight is too heavy."},
-  "Hammer curls":       {m:["biceps"], sets:3, reps:"12",
-    img:"Alternate_Hammer_Curl", imgAlt:["Hammer_Curls"],
-    how:"Same as curls but palms facing each other the whole time. Hits the forearms and the thicker part of the arm."},
-  "Weighted sit-ups":   {m:["abs"], sets:3, reps:"15",
-    img:"3_4_Sit-Up", imgAlt:["Sit-Up"],
-    how:"Hold a dumbbell against your chest. Sit up under control, lower back down slowly \u2014 don't just flop back. (Photo shows the bodyweight version \u2014 just add the dumbbell.)"},
-  "Russian twists":     {m:["obliques","abs"], sets:3, reps:"20",
-    img:"Russian_Twist", imgAlt:["Seated_Barbell_Twist"],
-    how:"Sit back at 45\u00b0, hold the dumbbell with both hands, rotate side to side. Feet up = harder. One left-right = one rep."},
-  "Deadbug":            {m:["abs"], sets:3, reps:"12 / side",
-    img:"Dead_Bug", imgAlt:["Bent-Knee_Hip_Raise"],
-    how:"On your back, dumbbell held straight up over your chest. Extend opposite arm and leg away slowly, keep your lower back glued to the floor."},
-  "Weighted plank":     {m:["abs","obliques"], sets:3, reps:"40 sec", timed:40,
-    img:"Plank", imgAlt:["Body-Up"],
-    how:"Plank on forearms, dumbbell (or plate) on your lower back \u2014 or just bodyweight. Squeeze glutes and abs, don't let hips sag."},
-  "Renegade rows":      {m:["lats","midback","abs","biceps"], sets:3, reps:"10",
-    img:"Alternating_Renegade_Row", imgAlt:["One-Arm_Dumbbell_Row"],
-    how:"Plank position with hands on the dumbbells. Row one up to your hip while bracing hard so your hips don't twist. Alternate sides. (Photo shows kettlebells \u2014 same movement.)"},
-  "Squeeze press":      {m:["chest","triceps"], sets:3, reps:"12",
+    how:"Slight bend in the elbows, lower wide until you feel a stretch across your chest, squeeze back together. 3-second lowering. When 20 slow reps is easy, move up to the 10s."},
+  "Squeeze press": {m:["chest","triceps"], sets:3, reps:"12-15", rest:45, load:"2\u00d710kg",
     img:"Dumbbell_Bench_Press", imgAlt:["Alternating_Floor_Press"],
-    how:"Press the two dumbbells together over your chest and keep squeezing them into each other as you press up and down. Constant chest tension. (Photo shows standard bench press \u2014 keep the dumbbells touching.)"},
-  "Curl to press":      {m:["biceps","shoulders","triceps"], sets:3, reps:"10",
-    img:"Arnold_Dumbbell_Press", imgAlt:["Standing_Dumbbell_Press"],
-    how:"Curl the dumbbells up, then rotate and press them overhead in one flow. Lower in reverse. Brutal for the whole arm and shoulders. (Photo shows the Arnold press \u2014 very similar, yours starts from a curl.)"},
-  "Deadlifts":          {m:["lowback","glutes","hams"], sets:3, reps:"10",
+    how:"Press the two dumbbells into each other over your chest and keep squeezing them together the entire set. Constant tension \u2014 your chest never gets to relax."},
+  "Overhead tricep extension": {m:["triceps"], sets:3, reps:"15", rest:45, load:"1\u00d710kg",
+    img:"Standing_Dumbbell_Triceps_Extension", imgAlt:["Seated_Triceps_Press"],
+    how:"One dumbbell, both hands, overhead. Lower behind your head bending only at the elbows, press back up. Elbows point forward, not out."},
+  "Tricep kickbacks": {m:["triceps"], sets:3, reps:"15", rest:30, load:"2\u00d75kg",
+    img:"Tricep_Dumbbell_Kickback", imgAlt:["Standing_Bent-Over_One-Arm_Dumbbell_Triceps_Extension"],
+    how:"Hinge forward, upper arm locked parallel to the floor. Extend back until straight, squeeze hard for 1 second, return slow."},
+  "Push-up burnout": {m:["chest","triceps","shoulders"], sets:2, reps:"max reps", rest:45,
+    img:"Pushups", imgAlt:["Push-Up_Wide"],
+    how:"As many strict push-ups as you can manage. Stop the set when your form breaks, not before. After everything else, this is the finisher that empties the tank."},
+
+  /* --- pull --- */
+  "Bent-over rows": {m:["lats","midback","biceps"], sets:4, reps:"12-15", rest:60, load:"2\u00d710kg",
+    img:"Bent_Over_Two-Dumbbell_Row", imgAlt:["Bent_Over_Two-Dumbbell_Row_With_Palms_In"],
+    how:"Hinge at the hips, flat back. Pull to your lower ribs, squeeze the shoulder blades together, then lower for a slow 3 count. The slow lowering matters more than the pull."},
+  "Single-arm rows": {m:["lats","midback","biceps"], sets:3, reps:"12-15 / side", rest:45, load:"1\u00d710kg",
+    img:"One-Arm_Dumbbell_Row", imgAlt:["Alternating_Kettlebell_Row"],
+    how:"One hand braced on a bench or your knee. Row to your hip, not your chest. Full stretch at the bottom, hard squeeze at the top. Both sides = one set."},
+  "Pullovers": {m:["lats","chest"], sets:3, reps:"15", rest:45, load:"1\u00d710kg",
+    img:"Straight-Arm_Dumbbell_Pullover", imgAlt:["Bent-Arm_Dumbbell_Pullover"],
+    how:"On your back, one dumbbell over your chest with both hands. Lower in an arc behind your head until you feel a big stretch, pull back over. Slow both ways."},
+  "Renegade rows": {m:["lats","midback","abs","biceps"], sets:3, reps:"10 / side", rest:60, load:"2\u00d710kg",
+    img:"Alternating_Renegade_Row", imgAlt:["One-Arm_Dumbbell_Row"],
+    how:"Plank position, hands on the dumbbells. Row one to your hip while bracing so your hips don't twist. Alternate. (Photo shows kettlebells \u2014 same movement.)"},
+  "Bicep curls": {m:["biceps"], sets:3, reps:"12-15", rest:45, load:"2\u00d710kg or 2\u00d75kg",
+    img:"Dumbbell_Bicep_Curl", imgAlt:["Dumbbell_Alternate_Bicep_Curl","Standing_Dumbbell_Curl"],
+    how:"Elbows pinned to your sides, zero swinging. Use the 10s only if you can stay strict \u2014 otherwise 5s with a 3-second lowering beats cheated 10s every time. LAST SET IS A DROP SET: failure, drop to 5s, failure again."},
+  "Zottman curls": {m:["biceps"], sets:3, reps:"12", rest:45, load:"2\u00d75kg",
+    img:"Zottman_Curl", imgAlt:["Alternate_Hammer_Curl"],
+    how:"The one you asked about. Curl up palms facing up, rotate at the top so palms face down, lower slowly for 3-4 seconds, rotate back at the bottom. The slow palms-down lowering hammers the forearms \u2014 that's the whole point."},
+  "Hammer curls": {m:["biceps"], sets:2, reps:"15", rest:30, load:"2\u00d75kg",
+    img:"Alternate_Hammer_Curl", imgAlt:["Hammer_Curls"],
+    how:"Palms facing each other the whole time. Hits the thicker part of the arm and the forearms. LAST SET: after failure, do slow half-reps until your grip gives out."},
+
+  /* --- legs --- */
+  "Goblet squats": {m:["quads","glutes","hams"], sets:4, reps:"15-20", rest:60, load:"8kg KB or 1\u00d710kg",
+    img:"Goblet_Squat", imgAlt:["Plie_Dumbbell_Squat","Bodyweight_Squat"],
+    how:"Hold the kettlebell or a dumbbell against your chest. Squat until thighs are at least parallel, pause 1 full second at the bottom, drive up. The pause removes all bounce \u2014 it makes light weight feel heavy."},
+  "Walking lunges": {m:["quads","glutes","hams"], sets:3, reps:"12 / side", rest:60, load:"2\u00d710kg",
+    img:"Dumbbell_Lunges", imgAlt:["Bodyweight_Walking_Lunge"],
+    how:"Dumbbells at your sides. Step forward, lower the back knee toward the floor, drive through the front heel straight into the next step. Controlled, no wobbling."},
+  "Romanian deadlifts": {m:["lowback","glutes","hams"], sets:3, reps:"15", rest:60, load:"2\u00d710kg",
     img:"Romanian_Deadlift_With_Dumbbells", imgAlt:["Stiff-Legged_Dumbbell_Deadlift","Stiff_Legged_Dumbbell_Deadlift"],
-    how:"Dumbbells in front of your thighs. Hinge at the hips, push your bum back, flat back, lower to mid-shin, then drive hips forward to stand. Not a squat \u2014 a hinge."}
+    how:"Dumbbells in front of your thighs. Push your hips back, flat back, lower to mid-shin over a slow 4 count, feel the hamstrings stretch, drive hips forward to stand. A hinge, not a squat."},
+  "Calf raises": {m:["quads"], sets:4, reps:"20", rest:30, load:"2\u00d710kg",
+    img:"Standing_Dumbbell_Calf_Raise", imgAlt:["Standing_Calf_Raises"],
+    how:"Dumbbells at your sides, rise slowly onto your toes, squeeze 1 second at the top, lower for a 3 count. Do them off a step for a deeper stretch if you can."},
+  "Bike or treadmill intervals": {m:["quads","hams"], sets:1, reps:"10 min", timed:600, rest:0,
+    how:"30 seconds hard, 60 seconds easy, repeat until the timer dies. Hard means you couldn't hold a conversation. This keeps you lean while you build \u2014 which is what makes the six pack visible."},
+
+  /* --- shoulders --- */
+  "Arnold press": {m:["shoulders","triceps"], sets:4, reps:"12-15", rest:60, load:"2\u00d710kg",
+    img:"Arnold_Dumbbell_Press", imgAlt:["Standing_Dumbbell_Press"],
+    how:"Start with palms facing you at shoulder height, rotate out as you press overhead, reverse on the way down. Drop to the 5s the moment your lower back starts arching to cheat the weight up."},
+  "Lateral raises": {m:["shoulders"], sets:4, reps:"15-20", rest:45, load:"2\u00d75kg",
+    img:"Side_Lateral_Raise", imgAlt:["Power_Partials"],
+    how:"Slight bend in the elbows, raise to shoulder height, lower for a slow 3 count. No swinging \u2014 if you're rocking, it doesn't count. LAST SET: after failure, keep doing half-reps until you physically can't."},
+  "Front raises": {m:["shoulders"], sets:3, reps:"12", rest:45, load:"2\u00d75kg",
+    img:"Front_Dumbbell_Raise", imgAlt:["Side_Lateral_Raise"],
+    how:"Raise the dumbbells straight in front to shoulder height, alternate or together. Slow down, no momentum."},
+  "Rear delt flyes": {m:["shoulders","midback"], sets:3, reps:"15-20", rest:45, load:"2\u00d75kg",
+    img:"Seated_Bent-Over_Rear_Delt_Raise", imgAlt:["Reverse_Flyes"],
+    how:"Hinge forward, arms hanging, raise the dumbbells out wide like spreading wings. Rear delts are what make shoulders look 3D from every angle \u2014 nobody trains them, everybody should."},
+
+  /* --- core --- */
+  "Weighted sit-ups": {m:["abs"], sets:3, reps:"15-20", rest:45, load:"1\u00d75kg on chest",
+    img:"3_4_Sit-Up", imgAlt:["Sit-Up"],
+    how:"Dumbbell held against your chest. Sit up under control, lower back down for a slow 3 count \u2014 don't flop. Weighted ab work is what builds abs that show; cardio is what uncovers them."},
+  "Leg raises": {m:["abs"], sets:3, reps:"15", rest:45,
+    img:"Flat_Bench_Lying_Leg_Raise", imgAlt:["Scissor_Kick"],
+    how:"Flat on your back, hands under your bum, legs straight. Raise to vertical, lower slowly until your heels hover just off the floor \u2014 don't let them touch down. Lower back stays pressed into the mat."},
+  "Russian twists": {m:["obliques","abs"], sets:3, reps:"20", rest:30, load:"1\u00d75kg",
+    img:"Russian_Twist", imgAlt:["Seated_Barbell_Twist"],
+    how:"Sit back at 45\u00b0, rotate the dumbbell side to side. Feet up = harder. One left-right = one rep."},
+  "Deadbug": {m:["abs"], sets:3, reps:"12 / side", rest:30,
+    img:"Dead_Bug", imgAlt:["Bent-Knee_Hip_Raise"],
+    how:"On your back, arms straight up, knees at 90\u00b0. Extend opposite arm and leg away slowly, lower back glued to the floor the whole time."},
+  "Side plank": {m:["obliques","abs"], sets:2, reps:"30 sec / side", timed:30, rest:30,
+    img:"Side_Bridge", imgAlt:["Plank"],
+    how:"Forearm down, feet stacked, hips lifted into one straight line. The timer runs one 30-second hold \u2014 do one set per side."},
+  "Weighted plank": {m:["abs","obliques"], sets:3, reps:"40 sec", timed:40, rest:45, load:"1\u00d75kg on lower back",
+    img:"Plank", imgAlt:["Body-Up"],
+    how:"Plank on forearms with a dumbbell resting on your lower back (or bodyweight). Squeeze glutes and abs, hips level, breathe."},
+  "Steady cardio": {m:["quads","hams"], sets:1, reps:"15 min", timed:900, rest:0,
+    how:"Bike or treadmill at a pace you could just about hold a conversation at. Boring on purpose. This is the part that keeps body fat low enough for the six pack to actually show."},
+
+  /* --- friday supersets: two moves back to back = one set --- */
+  "Superset: squeeze press + rows": {m:["chest","triceps","lats","midback"], sets:3, reps:"12 + 12", rest:60, load:"2\u00d710kg",
+    img:"Dumbbell_Bench_Press", imgAlt:["Bent_Over_Two-Dumbbell_Row"],
+    how:"12-15 squeeze presses, then stand straight up into 12-15 bent-over rows with ZERO rest between them. That's one set. Then rest."},
+  "Superset: curl to press + squats": {m:["biceps","shoulders","quads","glutes"], sets:3, reps:"10 + 15", rest:60, load:"2\u00d710kg",
+    img:"Arnold_Dumbbell_Press", imgAlt:["Goblet_Squat"],
+    how:"10 curl-to-presses (curl up, rotate, press overhead in one flow), straight into 15 goblet squats. One set. Whole body, no rest inside the pair."},
+  "Superset: curls + extensions": {m:["biceps","triceps"], sets:3, reps:"12 + 12", rest:45, load:"2\u00d710kg / 1\u00d710kg",
+    img:"Dumbbell_Bicep_Curl", imgAlt:["Standing_Dumbbell_Triceps_Extension"],
+    how:"12 strict curls, straight into 12 overhead tricep extensions. Front and back of the arm with no escape \u2014 the pump is the point."},
+  "Deadlifts": {m:["lowback","glutes","hams"], sets:2, reps:"15", rest:60, load:"2\u00d710kg",
+    img:"Romanian_Deadlift_With_Dumbbells", imgAlt:["Stiff-Legged_Dumbbell_Deadlift","Stiff_Legged_Dumbbell_Deadlift"],
+    how:"Hinge at the hips, flat back, lower to mid-shin, drive hips forward to stand. Slow and clean \u2014 you're tired by now, form first."},
+  "Farmer hold": {m:["midback","shoulders","abs"], sets:2, reps:"40 sec", timed:40, rest:45, load:"2\u00d710kg",
+    img:"Farmers_Walk", imgAlt:[],
+    how:"Stand tall holding both 10s at your sides, shoulders back and down, crush the handles as hard as you can until the timer dies. Grip, traps, core \u2014 the quiet stuff that makes everything else stronger."}
 };
 
-/* George's core finisher \u2014 abs day exercises offered as an add-on */
-const CORE_FINISHER = ["Weighted sit-ups","Russian twists","Deadbug","Weighted plank"];
-
-/* ============ SOPHIE'S EXERCISES \u2014 Pilates-based, no weights ============ */
+/* ============ SOPHIE'S EXERCISES — Pilates-based, no weights (unchanged) ============ */
 const EX_SOPHIE = {
   "Glute bridge":       {m:["glutes","hams","abs"], sets:3, reps:"15",
     img:"Butt_Lift_Bridge", imgAlt:["Barbell_Glute_Bridge","Bent-Knee_Hip_Raise"],
@@ -424,7 +391,7 @@ const EX_SOPHIE = {
   "Inner thigh lifts":  {m:["quads"], sets:3, reps:"12 / side",
     img:"Side_Leg_Raises", imgAlt:["Bodyweight_Squat"],
     how:"Lie on your side, bend the top leg and place that foot flat in front of the bottom knee. Lift the bottom (straight) leg a few inches off the floor, pulse up, lower slowly. Small movement, big burn."},
-  "Calf raises":        {m:["quads"], sets:3, reps:"20",
+  "Calf raises": {m:["quads"], sets:3, reps:"20",
     img:"Standing_Calf_Raises", imgAlt:["Calf_Raises_-_With_Bands","Bodyweight_Squat"],
     how:"Stand tall, one hand on a wall for balance. Rise slowly onto your toes, squeeze at the top, lower for a 3-count. Sculpts the calf line."},
   "The hundred":        {m:["abs"], sets:3, reps:"45 sec", timed:45,
@@ -442,10 +409,10 @@ const EX_SOPHIE = {
   "Scissor kicks":      {m:["abs"], sets:3, reps:"20",
     img:"Scissor_Kick", imgAlt:["Flutter_Kicks","Bent-Knee_Hip_Raise"],
     how:"Lie flat, hands under your bum for support, legs straight and hovering off the floor. Cross one leg over the other in a slow scissor motion, keeping both off the ground. Lower back pressed down the whole time."},
-  "Side plank":         {m:["obliques","abs"], sets:2, reps:"20-30 sec / side", timed:25,
+  "Side plank": {m:["obliques","abs"], sets:2, reps:"20-30 sec / side", timed:25,
     img:"Side_Bridge", imgAlt:["Plank"],
     how:"On your side, forearm down, feet stacked. Lift your hips so your body makes one straight diagonal line. Hold and breathe. Do both sides \u2014 this is the one that carves the waistline."},
-  "Walking lunges":     {m:["quads","glutes","hams"], sets:3, reps:"10 / side",
+  "Walking lunges": {m:["quads","glutes","hams"], sets:3, reps:"10 / side",
     img:"Bodyweight_Walking_Lunge", imgAlt:["Bodyweight_Squat"],
     how:"Step forward and lower the back knee toward the floor, keeping your front knee over your foot. Push through the front heel to step straight into the next lunge. Slow and controlled \u2014 tempo over speed."},
   "Knee push-ups":      {m:["chest","triceps","shoulders"], sets:3, reps:"8-12",
@@ -470,16 +437,16 @@ const PROFILES = {
   george: {
     name:"George",
     accent:"#22d3ee",
-    tagline:"Two dumbbells. Short rests. In and out fast.",
+    tagline:"6 days. High volume, slow negatives, drop sets. Capped weights, uncapped effort.",
     ex: EX_GEORGE,
     week: [
-      {day:"Monday",    focus:"Chest & Triceps", color:"var(--chest)", ex:["Bench press","Incline press","Flyes","Overhead tricep extension","Tricep kickbacks"]},
-      {day:"Tuesday",   focus:"Back & Biceps",   color:"var(--back)",  ex:["Bent-over rows","Single-arm rows","Pullovers","Bicep curls","Hammer curls"]},
-      {day:"Wednesday", focus:"Abs & Core",      color:"var(--abs)",   ex:["Weighted sit-ups","Russian twists","Deadbug","Weighted plank"]},
-      {day:"Thursday",  focus:"Rest",            color:"var(--line)",  ex:[]},
-      {day:"Friday",    focus:"Full Body Burnout",color:"var(--arms)", ex:["Renegade rows","Squeeze press","Curl to press","Deadlifts"]},
-      {day:"Saturday",  focus:"Chest & Back \u00b7 lighter", color:"var(--chest)", ex:["Bench press","Bent-over rows","Flyes","Pullovers"], lighter:true},
-      {day:"Sunday",    focus:"Rest",            color:"var(--line)",  ex:[]}
+      {day:"Monday",    focus:"Chest & Triceps",  color:"var(--chest)",     ex:["Bench press","Incline press","Flyes","Squeeze press","Overhead tricep extension","Tricep kickbacks","Push-up burnout"]},
+      {day:"Tuesday",   focus:"Back & Biceps",    color:"var(--back)",      ex:["Bent-over rows","Single-arm rows","Pullovers","Renegade rows","Bicep curls","Zottman curls","Hammer curls"]},
+      {day:"Wednesday", focus:"Legs & Intervals", color:"var(--legs)",      ex:["Goblet squats","Walking lunges","Romanian deadlifts","Calf raises","Bike or treadmill intervals"]},
+      {day:"Thursday",  focus:"Shoulders & Abs",  color:"var(--shoulders)", ex:["Arnold press","Lateral raises","Front raises","Rear delt flyes","Weighted sit-ups","Russian twists","Weighted plank"]},
+      {day:"Friday",    focus:"Full Body Burnout \u00b7 supersets", color:"var(--arms)", ex:["Superset: squeeze press + rows","Superset: curl to press + squats","Superset: curls + extensions","Deadlifts","Farmer hold"]},
+      {day:"Saturday",  focus:"Abs & Cardio \u00b7 six-pack day", color:"var(--abs)", ex:["Weighted sit-ups","Leg raises","Russian twists","Deadbug","Side plank","Weighted plank","Steady cardio"]},
+      {day:"Sunday",    focus:"Rest \u2014 this is where the muscle actually gets built", color:"var(--line)", ex:[]}
     ]
   },
   sophie: {
@@ -499,6 +466,23 @@ const PROFILES = {
   }
 };
 
+/* ============ GROWTH RULES (George) ============ */
+const GROWTH_RULES = [
+  {t:"Sleep: 8-9 hours, non-negotiable",
+   p:"Muscle isn't built while you lift \u2014 it's built while you sleep. Deep sleep is when your body releases the growth hormone that repairs and grows what you trained. Every late night is a wasted workout. This is the only real \u201chormone hack\u201d that exists."},
+  {t:"Eat like it's part of the program",
+   p:"You can't build muscle out of thin air. Protein at every single meal \u2014 eggs, chicken, milk, Greek yogurt, tuna, mince. Rough target: 120-160g of protein a day, and a few hundred calories more than normal. Not a dirty bulk \u2014 you're lean, and staying lean is what keeps the abs visible while you grow."},
+  {t:"The six-pack truth",
+   p:"Abs are made visible by low body fat and made thick by weighted ab work. You're already lean, so the job is: keep the cardio in, hit the weighted ab days hard, and don't crash diet \u2014 starving yourself would cost you muscle everywhere else."},
+  {t:"Progression ladder (your weights are capped)",
+   p:"The dumbbells stop at 10kg, so progress in this order:",
+   list:["Add reps until you hit the top of the range.","Slow every lowering phase to 3-4 seconds.","Add a 1-second pause at the hardest point.","Drop sets \u2014 failure at 10kg, straight to 5kg, failure again.","Cut the rest time down.","When 20 slow reps feels easy on everything: buy heavier adjustable dumbbells. That's the single best upgrade money can buy for this program."]},
+  {t:"Skip the snake oil",
+   p:"Anything sold as a testosterone booster, hormone hack or shortcut is a scam \u2014 at your age your natural levels are already near their lifetime peak. You need food, water, sleep and effort. Creatine is the only supplement with solid evidence behind it, and even that's optional. Nothing in a shiny tub replaces the boring stuff."},
+  {t:"Consistency beats everything",
+   p:"One workout changes nothing. Twelve weeks changes everything. Take a progress photo once a month \u2014 not a mirror check every day. Miss a day? Fine. Never miss two in a row."}
+];
+
 const MUSCLE_COLOR = {
   chest:"var(--chest)", upperchest:"var(--chest)",
   lats:"var(--back)", midback:"var(--back)", lowback:"var(--back)",
@@ -509,7 +493,7 @@ const MUSCLE_COLOR = {
 
 /* ============ BODY DIAGRAM ============ */
 function bodySVG(highlight){
-  const h = m => highlight.includes(m) ? `class="muscle hot" style="fill:${MUSCLE_COLOR[m]}; color:${MUSCLE_COLOR[m]}"` : `class="muscle"`;
+  const h = m => highlight.includes(m) ? `class="muscle" style="fill:${MUSCLE_COLOR[m]}"` : `class="muscle"`;
   const front = `
   <svg viewBox="0 0 120 240" aria-label="Front muscle diagram">
     <text x="60" y="12" class="figure-label">Front</text>
@@ -555,27 +539,25 @@ function bodySVG(highlight){
 /* ============ STATE ============ */
 let screen = {name:"picker"};
 let profile = null;
-let restLen = lsGet("gs_restLen", 45);
+let restOverride = null; /* null = use each exercise's suggested rest */
 let doneDays = lsGet("gs_doneDays", {george:{}, sophie:{}});
 if(!doneDays.george) doneDays.george = {};
 if(!doneDays.sophie) doneDays.sophie = {};
 let timerInt = null;
 let poseInt = null;
 let paused = false;
-let dayFinisherOn = false;
 
 function P(){ return PROFILES[profile]; }
 function setAccent(){
-  const a = profile ? P().accent : "#22d3ee";
-  const r = document.documentElement.style;
-  r.setProperty("--accent", a);
-  r.setProperty("--accent-dim", a + "24");
+  document.documentElement.style.setProperty("--accent", profile ? P().accent : "#22d3ee");
 }
+function suggestedRest(ex){ return ex.rest === undefined ? 45 : ex.rest; }
+function effectiveRest(ex){ return restOverride === null ? suggestedRest(ex) : restOverride; }
 
 /* session persistence */
 function saveSession(){
   if(screen.name!=="player" || screen.mode==="finished") return;
-  lsSet("gs_session", { profile, dayIdx:screen.dayIdx, exIdx:screen.exIdx, set:screen.set, exList:screen.exList, savedAt:Date.now() });
+  lsSet("gs_session", { profile, dayIdx:screen.dayIdx, exIdx:screen.exIdx, set:screen.set, exList:screen.exList, restOverride, savedAt:Date.now() });
 }
 function clearSession(){ lsRemove("gs_session"); }
 function getSession(){
@@ -583,12 +565,14 @@ function getSession(){
   if(!s || !PROFILES[s.profile]) return null;
   const wk = PROFILES[s.profile].week;
   if(!wk[s.dayIdx] || !s.exList || !s.exList[s.exIdx]) return null;
+  if(!PROFILES[s.profile].ex[s.exList[s.exIdx]]) return null;
   return s;
 }
 
 /* ============ AUDIO BEEPS ============ */
 let audioCtx = null;
-function beep(freq=880, dur=0.15){
+function beep(freq, dur){
+  freq = freq || 880; dur = dur || 0.15;
   try{
     audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
     const o = audioCtx.createOscillator(), g = audioCtx.createGain();
@@ -607,14 +591,7 @@ function topbarHTML(backAction, backText){
   return `
     <div class="topbar">
       ${backAction ? `<button class="backbtn" onclick="${backAction}">\u2190 ${backText}</button>` : `<div></div>`}
-      <div style="display:flex; align-items:center; gap:8px;">
-        <div class="brand">${profile ? P().name : "G&S"}<em>\u2009OS</em></div>
-        <button class="voicebtn ${voiceOn?'on':''}" id="voiceBtn" onclick="toggleVoice()" title="Voice coach">${voiceOn?"\ud83d\udd0a":"\ud83d\udd07"}</button>
-      </div>
-    </div>
-    <div class="coach-line hud">
-      <div class="coach-dot"></div>
-      <div class="coach-text" id="coachText"><span class="c-tag">COACH</span>Standing by.</div>
+      <div class="brand"><b>${profile ? P().name : "G&S"}</b> \u00b7 Workouts</div>
     </div>`;
 }
 
@@ -625,6 +602,7 @@ function render(){
   setAccent();
   if(screen.name==="picker") renderPicker();
   else if(screen.name==="week") renderWeek();
+  else if(screen.name==="rules") renderRules();
   else if(screen.name==="day") renderDay(screen.dayIdx);
   else if(screen.name==="player") renderPlayer();
   window.scrollTo(0,0);
@@ -637,11 +615,11 @@ function resumeBannerHTML(){
   const d = pr.week[s.dayIdx];
   const exName = s.exList[s.exIdx];
   return `
-    <div class="resume-banner hud glow" style="border-color:${pr.accent}">
-      <div class="mono-label" style="color:${pr.accent}">\u26a0 Unfinished session detected</div>
+    <div class="resume-banner" style="border-color:${pr.accent}">
+      <div class="eyebrow">Unfinished session</div>
       <div class="rb-detail">${pr.name} \u00b7 ${d.day} \u00b7 ${d.focus}<br>${exName} \u2014 set ${s.set}</div>
       <div class="rb-row">
-        <button class="rb-btn go" style="background:${pr.accent}" onclick="resumeSession()">Resume \u25b6</button>
+        <button class="rb-btn go" style="background:${pr.accent}" onclick="resumeSession()">Resume</button>
         <button class="rb-btn discard" onclick="discardSession()">Discard</button>
       </div>
     </div>`;
@@ -651,11 +629,11 @@ window.resumeSession = () => {
   const s = getSession();
   if(!s) return;
   profile = s.profile;
+  restOverride = (s.restOverride === undefined) ? null : s.restOverride;
   screen = {name:"player", dayIdx:s.dayIdx, exIdx:s.exIdx, set:s.set, mode:"work", t:0, exList:s.exList};
   const ex = P().ex[s.exList[s.exIdx]];
   if(ex.timed) screen.t = ex.timed;
   render();
-  say("Welcome back. Resuming " + s.exList[s.exIdx] + ", set " + s.set + ".");
 };
 window.discardSession = () => { clearSession(); render(); };
 
@@ -664,17 +642,16 @@ function renderPicker(){
     ${topbarHTML(null)}
     ${resumeBannerHTML()}
     <div class="picker" style="${getSession() ? 'min-height:auto; padding-top:6px;' : ''}">
-      <div class="mono-label sysline" style="margin-bottom:10px;">System online \u00b7 v6</div>
-      <h1 class="display">George & Sophie's<br>Workouts</h1>
-      <p style="color:var(--dim); font-size:15px; margin:8px 0 30px; letter-spacing:.05em;">Who's working out today?</p>
-      <button class="profile-btn glow" onclick="pickProfile('george')">
+      <h1>George & Sophie's<br>Workouts</h1>
+      <p class="sub">Who's working out today?</p>
+      <button class="profile-btn" onclick="pickProfile('george')">
         <div class="avatar" style="background:#22d3ee">G</div>
         <div>
           <div class="pname">George</div>
-          <div class="pdesc">Dumbbell strength \u00b7 chest, back, arms, abs</div>
+          <div class="pdesc">6-day muscle builder \u00b7 push, pull, legs, core</div>
         </div>
       </button>
-      <button class="profile-btn glow" onclick="pickProfile('sophie')" style="border-color:rgba(244,114,182,.3)">
+      <button class="profile-btn" onclick="pickProfile('sophie')">
         <div class="avatar" style="background:#f472b6">S</div>
         <div>
           <div class="pname">Sophie</div>
@@ -685,10 +662,11 @@ function renderPicker(){
   `;
 }
 
-window.pickProfile = p => {
-  profile = p; screen={name:"week"}; render();
-  say("Hello " + P().name + ". Ready when you are.");
-};
+window.pickProfile = p => { profile = p; screen={name:"week"}; render(); };
+window.goPicker = () => { profile=null; screen={name:"picker"}; render(); };
+window.goWeek = () => { screen={name:"week"}; render(); };
+window.goRules = () => { screen={name:"rules"}; render(); };
+window.openDay = i => { screen={name:"day", dayIdx:i}; render(); };
 
 function renderWeek(){
   const pr = P();
@@ -696,43 +674,51 @@ function renderWeek(){
     ${topbarHTML("goPicker()","Switch")}
     ${resumeBannerHTML()}
     <div class="week-hero">
-      <h1 class="display">Your Week</h1>
+      <h1>Your Week</h1>
       <p>${pr.tagline}</p>
     </div>
-    <div class="legend">
-      <span><i style="background:var(--chest); color:var(--chest)"></i>Chest</span>
-      <span><i style="background:var(--back); color:var(--back)"></i>Back</span>
-      <span><i style="background:var(--arms); color:var(--arms)"></i>Arms</span>
-      <span><i style="background:var(--abs); color:var(--abs)"></i>Abs</span>
-      <span><i style="background:var(--legs); color:var(--legs)"></i>Legs</span>
-    </div>
+    ${profile==="george" ? `
+      <button class="rules-card" onclick="goRules()">
+        <div>
+          <div class="t">Growth rules</div>
+          <div class="s">Sleep, food, progression \u2014 read once a week</div>
+        </div>
+        <div class="arrow">\u2192</div>
+      </button>` : ""}
     ${pr.week.map((d,i)=>{
       if(d.ex.length===0) return `
         <div class="daycard rest-day">
-          <div class="dot" style="background:${d.color}; color:${d.color}"></div>
+          <div class="dot" style="background:${d.color}"></div>
           <div class="info"><div class="dayname">${d.day}</div><div class="focus">${d.focus}</div></div>
         </div>`;
       return `
         <button class="daycard" onclick="openDay(${i})">
-          <div class="dot" style="background:${d.color}; color:${d.color}"></div>
+          <div class="dot" style="background:${d.color}"></div>
           <div class="info">
             <div class="dayname">${d.day}${doneDays[profile][i]?'<span class="done-badge">\u2713</span>':''}</div>
             <div class="focus">${d.focus}</div>
           </div>
-          <div class="count">${d.ex.length} EX</div>
+          <div class="count">${d.ex.length} ex</div>
         </button>`;
     }).join("")}
   `;
 }
 
-window.goPicker = () => { profile=null; screen={name:"picker"}; render(); };
-window.openDay = i => { screen={name:"day", dayIdx:i}; dayFinisherOn=false; render(); };
-window.toggleFinisher = () => {
-  dayFinisherOn = !dayFinisherOn;
-  renderDay(screen.dayIdx);
-  say(dayFinisherOn ? "Core finisher armed. Four extra exercises queued." : "Core finisher off.");
-};
-window.goWeek = () => { screen={name:"week"}; render(); };
+function renderRules(){
+  app.innerHTML = `
+    ${topbarHTML("goWeek()","Week")}
+    <div class="rules-head">
+      <h1>Growth rules</h1>
+      <p>The workout is a third of the result. This is the other two thirds. None of it is optional if you're serious.</p>
+    </div>
+    ${GROWTH_RULES.map(r=>`
+      <div class="rule">
+        <h2>${r.t}</h2>
+        <p>${r.p}</p>
+        ${r.list ? `<ol>${r.list.map(x=>`<li>${x}</li>`).join("")}</ol>` : ""}
+      </div>`).join("")}
+  `;
+}
 
 function musclesForDay(d){
   const s = new Set();
@@ -743,59 +729,34 @@ function musclesForDay(d){
 function renderDay(i){
   const d = P().week[i];
   const muscles = musclesForDay(d);
-  const isAbsDay = JSON.stringify(d.ex) === JSON.stringify(CORE_FINISHER);
-  const canAddFinisher = profile==="george" && d.ex.length>0 && !isAbsDay;
-
   app.innerHTML = `
     ${topbarHTML("goWeek()","Week")}
     <div class="day-head">
-      <h1 class="display">${d.day}</h1>
+      <h1>${d.day}</h1>
       <div class="focus-line">${d.focus}${d.lighter?' \u2014 take it a touch easier than earlier in the week':''}</div>
     </div>
-    <div class="diagram-wrap hud glow">${bodySVG(muscles)}</div>
+    <div class="diagram-wrap">${bodySVG(muscles)}</div>
     ${d.ex.map((e,j)=>{
       const x = P().ex[e];
-      return `<button class="ex-row" onclick="startPlayer(${i},${j},${canAddFinisher && dayFinisherOn})">
-        <img class="thumb" src="${imgURL(x.img,0)}" data-id="${x.img}" data-pose="0" data-alts='${JSON.stringify(x.imgAlt||[])}' onerror="imgFail(this)" alt="" loading="lazy">
-        <div class="mid"><div class="nm">${e}</div><div class="muscles-tag">${x.m.join(" \u00b7 ")}</div></div>
+      return `<button class="ex-row" onclick="startPlayer(${i},${j})">
+        ${x.img ? `<img class="thumb" src="${imgURL(x.img,0)}" data-id="${x.img}" data-pose="0" data-alts='${JSON.stringify(x.imgAlt||[])}' onerror="imgFail(this)" alt="" loading="lazy">` : ""}
+        <div class="mid"><div class="nm">${e}</div><div class="muscles-tag">${x.load ? x.load+" \u00b7 " : ""}${x.m.join(" \u00b7 ")}</div></div>
         <div class="sr">${x.sets}\u00d7${x.reps}</div>
       </button>`;
     }).join("")}
-    ${canAddFinisher ? `
-      <button class="finisher-toggle ${dayFinisherOn?'on':''}" onclick="toggleFinisher()">
-        <div>
-          <div class="ft-title">+ Core finisher</div>
-          <div class="ft-sub">Tack the abs day onto the end of today</div>
-        </div>
-        <div class="ft-switch"><span></span></div>
-      </button>
-      ${dayFinisherOn ? `
-        <div class="finisher-preview">
-          ${CORE_FINISHER.map(e=>{
-            const x = P().ex[e];
-            return `<div class="fp-row"><span>${e}</span><span class="fp-sr">${x.sets}\u00d7${x.reps}</span></div>`;
-          }).join("")}
-        </div>
-      ` : ""}
-    ` : ""}
-    <button class="startall" onclick="startPlayer(${i},0,${canAddFinisher && dayFinisherOn})">Initiate workout \u25b6</button>
+    <button class="startall" onclick="startPlayer(${i},0)">Start workout</button>
   `;
 }
 
 /* ============ PLAYER ============ */
-window.startPlayer = (dayIdx, exIdx, withFinisher) => {
+window.startPlayer = (dayIdx, exIdx) => {
   const d = P().week[dayIdx];
-  let exList = d.ex.slice();
-  if(withFinisher){
-    exList = exList.concat(CORE_FINISHER.filter(name => !exList.includes(name)));
-  }
+  const exList = d.ex.slice();
   screen = {name:"player", dayIdx, exIdx, set:1, mode:"work", t:0, exList};
   const ex = P().ex[exList[exIdx]];
   if(ex.timed) screen.t = ex.timed;
   saveSession();
   render();
-  const first = exList[exIdx];
-  say((exIdx===0 ? "Workout initiated. First up: " : "Jumping to: ") + first + ". " + P().ex[first].sets + " sets of " + P().ex[first].reps + ".");
 };
 
 function renderPlayer(){
@@ -812,14 +773,13 @@ function renderPlayer(){
     app.innerHTML = `
       ${topbarHTML("goWeek()","Week")}
       <div class="player">
-        <div class="finished-card hud glow">
-          <div class="mono-label" style="color:var(--good)">Session complete</div>
-          <h2 class="display">Workout done</h2>
-          <p>${d.day} \u2014 ${d.focus} complete. Nice one, ${P().name}. Water, food, recover.</p>
+        <div class="finished-card">
+          <div class="eyebrow" style="color:var(--good)">Session complete</div>
+          <h2>Workout done</h2>
+          <p>${d.day} \u2014 ${d.focus} complete. ${profile==="george" ? "Now go eat \u2014 protein and water. The workout only works if you feed it." : "Nice one, "+P().name+". Water, food, recover."}</p>
           <button class="mainbtn" onclick="goWeek()">Back to week</button>
         </div>
       </div>`;
-    say("Workout complete. Outstanding effort, " + P().name + ". Session logged. Go get some water and food.");
     return;
   }
 
@@ -827,6 +787,13 @@ function renderPlayer(){
 
   const resting = screen.mode==="rest";
   const working = screen.mode==="timedwork";
+  const sugg = suggestedRest(ex);
+  const eff = effectiveRest(ex);
+  const restOptsHTML = `
+    <div class="rest-opts">
+      ${[30,45,60,90].map(s=>`<button class="rest-opt ${eff===s?'sel':''}" onclick="setRest(${s})">${s}s</button>`).join("")}
+    </div>
+    <div class="rest-note">Suggested for this exercise: ${sugg}s${restOverride!==null && restOverride!==sugg ? ` \u00b7 you've overridden to ${restOverride}s \u00b7 <a href="#" style="color:var(--accent)" onclick="clearRestOverride(); return false;">use suggested</a>` : ""}</div>`;
 
   app.innerHTML = `
     ${topbarHTML("exitPlayer()","Exit")}
@@ -834,17 +801,18 @@ function renderPlayer(){
       <div class="progress-track">
         ${exList.map((_,j)=>`<span class="${j<screen.exIdx?'done':j===screen.exIdx?'now':''}"></span>`).join("")}
       </div>
-      <h1 class="ex-title display">${name}</h1>
+      <h1 class="ex-title">${name}</h1>
       <div class="ex-sub">EX ${screen.exIdx+1}/${exList.length} \u00b7 ${ex.sets} sets \u00d7 ${ex.reps}</div>
 
+      ${ex.img ? `
       <div class="photo-panel">
         <img id="poseImg" src="${imgURL(ex.img,0)}" data-id="${ex.img}" data-pose="0" data-alts='${JSON.stringify(ex.imgAlt||[])}' onerror="imgFail(this)" alt="How to do ${name}">
         <div class="pose-tag" id="poseTag">Start position</div>
       </div>
-      <div class="photo-note">Photo flips between start and finish \u00b7 public-domain images (free-exercise-db)</div>
+      <div class="photo-note">Photo flips between start and finish \u00b7 public-domain images (free-exercise-db)</div>` : ""}
 
-      <div class="diagram-wrap mini-diagram hud">${bodySVG(ex.m)}</div>
-      <div class="howto hud">${ex.how}</div>
+      <div class="diagram-wrap mini-diagram">${bodySVG(ex.m)}</div>
+      <div class="howto">${ex.load ? `<span class="load-chip">${ex.load}</span><br>` : ""}${ex.how}</div>
       <div class="set-pips">
         ${Array.from({length:ex.sets},(_,s)=>`<div class="pip ${s+1<screen.set?'done':s+1===screen.set?'now':''}">${s+1}</div>`).join("")}
       </div>
@@ -854,10 +822,8 @@ function renderPlayer(){
           <div class="big-time resting" id="clock">${fmt(screen.t)}</div>
           <div class="state-label">Rest \u00b7 next: ${nextLabel()}</div>
         </div>
-        <div class="rest-opts">
-          ${[30,45,60].map(s=>`<button class="rest-opt ${restLen===s?'sel':''}" onclick="setRest(${s})">${s}s</button>`).join("")}
-        </div>
-        <button class="mainbtn resting" onclick="skipRest()">Skip rest \u25b6</button>
+        ${restOptsHTML}
+        <button class="mainbtn resting" onclick="skipRest()">Skip rest</button>
         <div class="subrow">
           <button class="subbtn" id="pauseBtn" onclick="togglePause()">Pause</button>
           <button class="subbtn" onclick="addRest()">+15 sec</button>
@@ -865,9 +831,9 @@ function renderPlayer(){
       ` : working ? `
         <div class="timer-block">
           <div class="big-time working" id="clock">${fmt(screen.t)}</div>
-          <div class="state-label">Hold \u00b7 set ${screen.set}/${ex.sets}</div>
+          <div class="state-label">Go \u00b7 set ${screen.set}/${ex.sets}</div>
         </div>
-        <button class="mainbtn" onclick="finishSet()">Done early \u2713</button>
+        <button class="mainbtn" onclick="finishSet()">Done early</button>
         <div class="subrow">
           <button class="subbtn" id="pauseBtn" onclick="togglePause()">Pause</button>
         </div>
@@ -876,10 +842,8 @@ function renderPlayer(){
           <div class="big-time">${isTimed ? fmt(ex.timed) : ex.reps}</div>
           <div class="state-label">${isTimed ? "Timed" : "Reps"} \u00b7 set ${screen.set}/${ex.sets}</div>
         </div>
-        <div class="rest-opts">
-          ${[30,45,60].map(s=>`<button class="rest-opt ${restLen===s?'sel':''}" onclick="setRest(${s})">${s}s rest</button>`).join("")}
-        </div>
-        <button class="mainbtn" onclick="${isTimed?'startTimedSet()':'finishSet()'}">${isTimed?'Start \u25b6':'Set done \u2713'}</button>
+        ${restOptsHTML}
+        <button class="mainbtn" onclick="${isTimed?'startTimedSet()':'finishSet()'}">${isTimed?'Start':'Set done'}</button>
         <div class="subrow">
           <button class="subbtn" onclick="skipExercise()">Skip exercise</button>
         </div>
@@ -913,9 +877,8 @@ function renderPlayer(){
         if(resting){
           screen.mode="work";
           render();
-          say("Rest over. " + nextSpoken());
         } else {
-          finishSetInternal(true);
+          finishSetInternal();
           render();
         }
       }
@@ -929,12 +892,10 @@ window.togglePause = () => {
   const clock = document.getElementById("clock");
   if(btn){ btn.textContent = paused ? "Resume" : "Pause"; btn.classList.toggle("paused", paused); }
   if(clock){ clock.classList.toggle("paused", paused); }
-  say(paused ? "Paused." : "Resuming.");
 };
 
 window.exitPlayer = () => {
   clearSession();
-  try{ speechSynthesis.cancel(); }catch(e){}
   screen = {name:"day", dayIdx:screen.dayIdx};
   render();
 };
@@ -947,18 +908,10 @@ function nextLabel(){
   if(screen.set <= ex.sets) return `Set ${screen.set} of ${exList[screen.exIdx]}`;
   return exList[screen.exIdx+1] || "Finish";
 }
-/* what the coach says when rest ends */
-function nextSpoken(){
-  const exList = screen.exList;
-  const name = exList[screen.exIdx];
-  return "Set " + screen.set + " of " + name + ". Go.";
-}
 
-window.setRest = s => { restLen = s; lsSet("gs_restLen", restLen); render(); };
-window.skipRest = () => {
-  clearInterval(timerInt); screen.mode="work"; render();
-  say(nextSpoken());
-};
+window.setRest = s => { restOverride = s; saveSession(); render(); };
+window.clearRestOverride = () => { restOverride = null; saveSession(); render(); };
+window.skipRest = () => { clearInterval(timerInt); screen.mode="work"; render(); };
 window.addRest = () => { screen.t += 15; };
 
 window.startTimedSet = () => {
@@ -966,25 +919,22 @@ window.startTimedSet = () => {
   screen.mode = "timedwork"; screen.t = ex.timed;
   beep(1046,0.2);
   render();
-  say("Go. " + ex.timed + " seconds.");
 };
 
-window.finishSet = () => { clearInterval(timerInt); finishSetInternal(false); render(); };
+window.finishSet = () => { clearInterval(timerInt); finishSetInternal(); render(); };
 
-function finishSetInternal(fromTimer){
+function finishSetInternal(){
   const exList = screen.exList;
   const curName = exList[screen.exIdx];
   const ex = P().ex[curName];
   if(screen.set >= ex.sets){
     if(screen.exIdx >= exList.length-1){ screen.mode="finished"; return; }
-    const nextName = exList[screen.exIdx+1];
     screen.exIdx++; screen.set=1;
-    screen.mode="rest"; screen.t=restLen+15;
-    say(curName + " complete. Next up: " + nextName + ". Rest first.");
+    const nextEx = P().ex[exList[screen.exIdx]];
+    screen.mode="rest"; screen.t=effectiveRest(nextEx)+15;
   } else {
     screen.set++;
-    screen.mode="rest"; screen.t=restLen;
-    say("Set " + (screen.set-1) + " done. Rest " + restLen + " seconds.");
+    screen.mode="rest"; screen.t=effectiveRest(ex);
   }
   saveSession();
 }
@@ -994,11 +944,9 @@ window.skipExercise = () => {
   if(screen.exIdx >= exList.length-1){ screen.mode="finished"; }
   else {
     screen.exIdx++; screen.set=1; screen.mode="work";
-    const nextName = exList[screen.exIdx];
-    const ex=P().ex[nextName];
-    if(ex.timed) screen.t=ex.timed;
+    const ex=P().ex[exList[screen.exIdx]];
+    screen.t = ex.timed ? ex.timed : 0;
     saveSession();
-    say("Skipped. Next: " + nextName + ".");
   }
   render();
 };
